@@ -1,4 +1,5 @@
 import { dateFormatter } from "@/lib/helpers/date-formatter";
+import { trpc } from "@/lib/utils/trpc";
 import {
   Box,
   Button,
@@ -10,32 +11,17 @@ import {
   Text,
   Textarea,
 } from "@chakra-ui/react";
-import {
-  keepPreviousData,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
-import axios from "axios";
+import { keepPreviousData, useQueryClient } from "@tanstack/react-query";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { FormEvent, useState } from "react";
 import { FaGithub } from "react-icons/fa";
 
 interface GuestbookProps {
-  id: string;
-  created_at: string;
+  id: number;
+  created_at: Date;
   email: string;
   username: string;
   message: string;
-}
-
-async function createNewMessage(message: string) {
-  await axios.post("/api/guestbook", { message });
-}
-
-async function getMessagesList() {
-  const response = await axios.get("/api/guestbook");
-  return response.data;
 }
 
 export default function Guestbook() {
@@ -43,31 +29,39 @@ export default function Guestbook() {
 
   const [message, setMessage] = useState<string>("");
 
-  const { refetch, data, isPending, isError } = useQuery({
-    queryFn: () => getMessagesList(),
-    queryKey: ["get-messages-list"],
-    placeholderData: keepPreviousData,
-    refetchOnReconnect: false,
-    refetchOnWindowFocus: false,
-  });
+  const { refetch, data, isPending, isError } = trpc.guestbook.get.useQuery(
+    { key: "get-guestbook" },
+    {
+      placeholderData: keepPreviousData,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+    }
+  );
 
   const { data: session } = useSession();
 
-  const createNewMessageMutation = useMutation({
+  const createNewMessageMutation = trpc.guestbook.post.useMutation({
     mutationKey: ["create-new-message"],
-    mutationFn: async () => await createNewMessage(message),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ exact: true });
-    },
+    onSuccess: async () =>
+      await queryClient.invalidateQueries({
+        queryKey: ["create-new-message"],
+        exact: true,
+      }),
   });
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    createNewMessageMutation.mutateAsync().then(() => {
-      refetch();
-      setMessage("");
-    });
+    createNewMessageMutation
+      .mutateAsync({
+        email: session?.user.email as string,
+        username: session?.user.name as string,
+        message,
+      })
+      .then(() => {
+        refetch();
+        setMessage("");
+      });
   }
 
   if (isPending)
@@ -90,7 +84,7 @@ export default function Guestbook() {
       </Flex>
     );
 
-  const guestbook: Array<GuestbookProps> = data.data;
+  const guestbook: Omit<GuestbookProps, "email">[] = data;
 
   return (
     <Box w="full" py={4}>
@@ -104,7 +98,11 @@ export default function Guestbook() {
               Write a message for me and others.{" "}
               {session ? (
                 <span
-                  style={{ fontWeight: "bold", textDecoration: "underline" }}
+                  style={{
+                    fontWeight: "bold",
+                    textDecoration: "underline",
+                    cursor: "pointer",
+                  }}
                   onClick={() => signOut()}
                 >
                   Sign Out
