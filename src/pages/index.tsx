@@ -18,7 +18,7 @@ import { FaGithub } from "react-icons/fa";
 
 interface GuestbookProps {
   id: number;
-  created_at: Date;
+  created_at: string;
   email: string;
   username: string;
   message: string;
