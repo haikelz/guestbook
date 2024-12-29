@@ -7,8 +7,6 @@ import {
   NEXT_PUBLIC_GOOGLE_SECRET,
   NEXTAUTH_SECRET,
 } from "@/lib/utils/constants";
-import { prisma } from "@/lib/utils/prisma";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import type { Awaitable, NextAuthOptions, User } from "next-auth";
 import NextAuth from "next-auth/next";
 import GithubProvider, { GithubProfile } from "next-auth/providers/github";
@@ -64,7 +62,6 @@ export const options: NextAuthOptions = {
       return session;
     },
   },
-  adapter: PrismaAdapter(prisma),
 };
 
 export default NextAuth(options);
