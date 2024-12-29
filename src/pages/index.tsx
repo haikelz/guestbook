@@ -10,6 +10,7 @@ import {
   DialogRoot,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { toaster } from "@/components/ui/toaster";
 import { dateFormatter } from "@/lib/helpers/date-formatter";
 import { NEXT_PUBLIC_ADMIN_EMAIL } from "@/lib/utils/constants";
 import { isCreateNewMessageAtom } from "@/lib/utils/recoil";
@@ -77,12 +78,29 @@ export default function Guestbook() {
         queryKey: ["create-new-message"],
         exact: true,
       }),
+    onError: () => {
+      toaster.create({
+        type: "error",
+        title: "Gagal membuat pesan baru!",
+      });
+    },
   });
 
-  function handleCloseDialogMessage() {
-    setValue("message", "");
-    setIsCreateNewMessage(false);
-  }
+  // only for admin
+  const deleteMessageMutation = trpc.guestbook.delete.useMutation({
+    mutationKey: ["delete-message"],
+    onSuccess: async () =>
+      await queryClient.invalidateQueries({
+        queryKey: ["delete-message"],
+        exact: true,
+      }),
+    onError: () => {
+      toaster.create({
+        type: "error",
+        title: "Gagal menghapus pesan ini!",
+      });
+    },
+  });
 
   async function onSubmit() {
     await createNewMessageMutation
@@ -98,10 +116,26 @@ export default function Guestbook() {
       });
   }
 
+  async function handleDeleteMessage(id: number, username: string) {
+    await deleteMessageMutation
+      .mutateAsync({
+        id,
+        username,
+      })
+      .then(() => {
+        refetch();
+      });
+  }
+
   if (isPending) return <LoadingReactQuery />;
   if (isError) return <ErrorReactQuery />;
 
   const guestbook: Omit<GuestbookProps, "email">[] = data;
+
+  const sortedGuestbookByDate = guestbook.sort(
+    (a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
 
   return (
     <>
@@ -148,62 +182,61 @@ export default function Guestbook() {
             )}
           </Box>
           <Box spaceY={4}>
-            {guestbook
-              .sort(
-                (a, b) =>
-                  new Date(b.created_at).getTime() -
-                  new Date(a.created_at).getTime()
-              )
-              .map((item) => (
-                <Box
-                  spaceY={1}
-                  key={item.id}
-                  p={2}
-                  border="1px solid"
-                  borderColor="gray.500"
-                  borderRadius="sm"
+            {sortedGuestbookByDate.map((item) => (
+              <Box
+                spaceY={1}
+                key={item.id}
+                p={2}
+                border="1px solid"
+                borderColor="gray.500"
+                borderRadius="sm"
+              >
+                <Flex
+                  direction={{ base: "column-reverse", sm: "row" }}
+                  w="full"
+                  justifyContent="space-between"
                 >
-                  <Flex
-                    direction={{ base: "column-reverse", sm: "row" }}
-                    w="full"
-                    justifyContent="space-between"
-                  >
-                    <Text fontSize="lg" fontWeight="bold">
-                      {item.message}
-                    </Text>
-                    <Text fontSize="sm" fontWeight="medium">
-                      {dateFormatter.format(new Date(item.created_at))}
-                    </Text>
-                  </Flex>
-                  <Text fontSize="sm">@{item.username}</Text>
+                  <Text fontSize="lg" fontWeight="bold">
+                    {item.message}
+                  </Text>
+                  <Text fontSize="sm" fontWeight="medium">
+                    {dateFormatter.format(new Date(item.created_at))}
+                  </Text>
+                </Flex>
+                <Text fontSize="sm">@{item.username}</Text>
+                {session?.user.email === NEXT_PUBLIC_ADMIN_EMAIL ? (
                   <HStack>
-                    {session?.user.email === NEXT_PUBLIC_ADMIN_EMAIL ? (
-                      <button
-                        type="button"
-                        aria-label="delete message"
-                        style={{ cursor: "pointer" }}
+                    <button
+                      type="button"
+                      aria-label="delete message"
+                      style={{ cursor: "pointer" }}
+                      onClick={() =>
+                        handleDeleteMessage(item.id, item.username)
+                      }
+                    >
+                      <Text
+                        fontWeight="bold"
+                        textDecoration="underline"
+                        fontSize="14px"
                       >
-                        <Text
-                          fontWeight="bold"
-                          textDecoration="underline"
-                          fontSize="14px"
-                        >
-                          Delete
-                        </Text>
-                      </button>
-                    ) : null}
+                        Delete
+                      </Text>
+                    </button>
                   </HStack>
-                </Box>
-              ))}
+                ) : null}
+              </Box>
+            ))}
           </Box>
         </Container>
       </Box>
+      {/** Dialog Create New Message */}
       <DialogRoot
         placement="center"
         open={isCreateNewMessage}
+        onOpenChange={(e) => setIsCreateNewMessage(e.open)}
         size={{ base: "sm", sm: "lg" }}
-        preventScroll={true}
-        lazyMount={true}
+        preventScroll
+        lazyMount
       >
         <DialogBackdrop />
         <DialogContent bg="gray.900">
@@ -233,11 +266,7 @@ export default function Guestbook() {
               </Button>
             </DialogFooter>
           </form>
-          <DialogCloseTrigger
-            onClick={handleCloseDialogMessage}
-            color="white"
-            _hover={{ bg: "none" }}
-          />
+          <DialogCloseTrigger color="white" _hover={{ bg: "none" }} />
         </DialogContent>
       </DialogRoot>
     </>
