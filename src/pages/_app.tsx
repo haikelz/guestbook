@@ -1,3 +1,4 @@
+import { Toaster } from "@/components/ui/toaster";
 import {
   NEXT_PUBLIC_DEVELOPMENT_URL,
   NEXT_PUBLIC_PRODUCTION_URL,
@@ -65,6 +66,7 @@ export default function App({
             <ReactQueryDevtools />
             <ChakraProvider value={defaultSystem}>
               <Component {...pageProps} />
+              <Toaster />
             </ChakraProvider>
           </QueryClientProvider>
         </RecoilRoot>
