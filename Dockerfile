@@ -18,7 +18,6 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Similar to command `npm run ci`
 RUN npm run ci
 
 RUN addgroup -g 1001 -S nodejs

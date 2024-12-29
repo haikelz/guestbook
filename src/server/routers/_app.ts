@@ -36,6 +36,21 @@ export const appRouter = router({
 
         return data;
       }),
+    delete: publicProcedure
+      .input(
+        z.object({
+          id: z.number(),
+          username: z.string(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        await prisma.guestbook.delete({
+          where: {
+            id: input.id,
+            username: input.username,
+          },
+        });
+      }),
     put: publicProcedure
       .input(
         z.object({
