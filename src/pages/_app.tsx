@@ -12,15 +12,9 @@ import { NextSeo } from "next-seo";
 import type { AppProps } from "next/app";
 import localFont from "next/font/local";
 import { useState } from "react";
+import { RecoilRoot } from "recoil";
 import SeoConfig from "../../next-seo.config";
 import { trpc } from "../lib/utils/trpc";
-
-const appAnimation = {
-  transition: { duration: 0.27 },
-  initial: { opacity: 0, y: 30 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0 },
-};
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -36,7 +30,6 @@ const geistMono = localFont({
 export default function App({
   Component,
   pageProps: { session, ...pageProps },
-  router,
 }: AppProps) {
   const queryClient = new QueryClient();
   const [trpcClient] = useState(() =>
@@ -67,12 +60,14 @@ export default function App({
           }
         `}</style>
         <NextSeo {...SeoConfig} />
-        <QueryClientProvider client={queryClient}>
-          <ReactQueryDevtools />
-          <ChakraProvider value={defaultSystem}>
-            <Component {...pageProps} />
-          </ChakraProvider>
-        </QueryClientProvider>
+        <RecoilRoot>
+          <QueryClientProvider client={queryClient}>
+            <ReactQueryDevtools />
+            <ChakraProvider value={defaultSystem}>
+              <Component {...pageProps} />
+            </ChakraProvider>
+          </QueryClientProvider>
+        </RecoilRoot>
       </SessionProvider>
     </trpc.Provider>
   );

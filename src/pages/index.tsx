@@ -1,4 +1,19 @@
+import ErrorReactQuery from "@/components/error-react-query";
+import LoadingReactQuery from "@/components/loading-react-query";
+import {
+  DialogBackdrop,
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogRoot,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { dateFormatter } from "@/lib/helpers/date-formatter";
+import { NEXT_PUBLIC_ADMIN_EMAIL } from "@/lib/utils/constants";
+import { isCreateNewMessageAtom } from "@/lib/utils/recoil";
+import { messageSchema } from "@/lib/utils/schemas";
 import { trpc } from "@/lib/utils/trpc";
 import {
   Box,
@@ -7,14 +22,16 @@ import {
   Flex,
   Heading,
   HStack,
-  Spinner,
   Text,
   Textarea,
 } from "@chakra-ui/react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { keepPreviousData, useQueryClient } from "@tanstack/react-query";
 import { signIn, signOut, useSession } from "next-auth/react";
-import { FormEvent, useState } from "react";
-import { FaGithub } from "react-icons/fa";
+import { NextSeo } from "next-seo";
+import { useForm } from "react-hook-form";
+import { FaGithub, FaGoogle } from "react-icons/fa";
+import { useRecoilState } from "recoil";
 
 interface GuestbookProps {
   id: number;
@@ -27,7 +44,20 @@ interface GuestbookProps {
 export default function Guestbook() {
   const queryClient = useQueryClient();
 
-  const [message, setMessage] = useState<string>("");
+  const [isCreateNewMessage, setIsCreateNewMessage] = useRecoilState(
+    isCreateNewMessageAtom
+  );
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    getValues,
+  } = useForm({
+    defaultValues: { message: "" },
+    resolver: zodResolver(messageSchema),
+  });
 
   const { refetch, data, isPending, isError } = trpc.guestbook.get.useQuery(
     { key: "get-guestbook" },
@@ -49,128 +79,167 @@ export default function Guestbook() {
       }),
   });
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  function handleCloseDialogMessage() {
+    setValue("message", "");
+    setIsCreateNewMessage(false);
+  }
 
-    createNewMessageMutation
+  async function onSubmit() {
+    await createNewMessageMutation
       .mutateAsync({
         email: session?.user.email as string,
         username: session?.user.name as string,
-        message,
+        message: getValues("message"),
       })
       .then(() => {
         refetch();
-        setMessage("");
+        setValue("message", "");
+        setIsCreateNewMessage(false);
       });
   }
 
-  if (isPending)
-    return (
-      <Flex justifyContent="center" alignItems="center" height="100vh">
-        <HStack>
-          <Text fontWeight="bold" fontSize="xl">
-            Loading
-          </Text>
-          <Spinner />
-        </HStack>
-      </Flex>
-    );
-  if (isError)
-    return (
-      <Flex justifyContent="center" alignItems="center" height="100vh">
-        <Text fontWeight="bold" fontSize="2xl">
-          Error!
-        </Text>
-      </Flex>
-    );
+  if (isPending) return <LoadingReactQuery />;
+  if (isError) return <ErrorReactQuery />;
 
   const guestbook: Omit<GuestbookProps, "email">[] = data;
 
   return (
-    <Box w="full" py={4}>
-      <Container spaceY={5} maxW="3xl">
-        <Box spaceY={4}>
-          <Box spaceY={2}>
-            <Heading as="h1" fontSize="3xl" fontWeight="extrabold">
-              Guestbook
-            </Heading>
-            <Text>
-              Write a message for me and others.{" "}
-              {session ? (
-                <span
-                  style={{
-                    fontWeight: "bold",
-                    textDecoration: "underline",
-                    cursor: "pointer",
-                  }}
-                  onClick={() => signOut()}
-                >
-                  Sign Out
-                </span>
-              ) : null}
-            </Text>
+    <>
+      <NextSeo
+        title="guestbook.ekel.dev"
+        description="Write a message for me and others"
+      />
+      <Box w="full" py={4}>
+        <Container spaceY={5} maxW="3xl">
+          <Box spaceY={4}>
+            <Box spaceY={2}>
+              <Heading as="h1" fontSize="3xl" w="fit" fontWeight="extrabold">
+                guestbook.ekel.dev
+              </Heading>
+              <Text>
+                Write a message for me and others.{" "}
+                {session ? (
+                  <span
+                    style={{
+                      fontWeight: "bold",
+                      textDecoration: "underline",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => signOut()}
+                  >
+                    Sign Out
+                  </span>
+                ) : null}
+              </Text>
+            </Box>
+            {!session ? (
+              <HStack>
+                <Button fontWeight="bold" onClick={() => signIn("github")}>
+                  <FaGithub /> Github
+                </Button>
+                <Button fontWeight="bold" onClick={() => signIn("google")}>
+                  <FaGoogle /> Google
+                </Button>
+              </HStack>
+            ) : (
+              <Button onClick={() => setIsCreateNewMessage(true)}>
+                Create your message
+              </Button>
+            )}
           </Box>
-          {!session ? (
-            <Button fontWeight="bold" onClick={() => signIn("github")}>
-              <FaGithub /> Sign In with Github
-            </Button>
-          ) : (
-            <form onSubmit={handleSubmit}>
+          <Box spaceY={4}>
+            {guestbook
+              .sort(
+                (a, b) =>
+                  new Date(b.created_at).getTime() -
+                  new Date(a.created_at).getTime()
+              )
+              .map((item) => (
+                <Box
+                  spaceY={1}
+                  key={item.id}
+                  p={2}
+                  border="1px solid"
+                  borderColor="gray.500"
+                  borderRadius="sm"
+                >
+                  <Flex
+                    direction={{ base: "column-reverse", sm: "row" }}
+                    w="full"
+                    justifyContent="space-between"
+                  >
+                    <Text fontSize="lg" fontWeight="bold">
+                      {item.message}
+                    </Text>
+                    <Text fontSize="sm" fontWeight="medium">
+                      {dateFormatter.format(new Date(item.created_at))}
+                    </Text>
+                  </Flex>
+                  <Text fontSize="sm">@{item.username}</Text>
+                  <HStack>
+                    {session?.user.email === NEXT_PUBLIC_ADMIN_EMAIL ? (
+                      <button
+                        type="button"
+                        aria-label="delete message"
+                        style={{ cursor: "pointer" }}
+                      >
+                        <Text
+                          fontWeight="bold"
+                          textDecoration="underline"
+                          fontSize="14px"
+                        >
+                          Delete
+                        </Text>
+                      </button>
+                    ) : null}
+                  </HStack>
+                </Box>
+              ))}
+          </Box>
+        </Container>
+      </Box>
+      <DialogRoot
+        placement="center"
+        open={isCreateNewMessage}
+        size={{ base: "sm", sm: "lg" }}
+        preventScroll={true}
+        lazyMount={true}
+      >
+        <DialogBackdrop />
+        <DialogContent bg="gray.900">
+          <DialogHeader>
+            <DialogTitle>Create New Message</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <DialogBody>
               <Textarea
+                {...register("message", { required: true })}
                 placeholder="Your Message...."
                 borderColor="gray.500"
                 h="80px"
-                value={message}
                 _placeholder={{ color: "gray.500" }}
-                onChange={(e) => setMessage(e.target.value)}
                 required
               />
+              <Text>{errors.message ? errors.message.message : null}</Text>
+            </DialogBody>
+            <DialogFooter>
               <Button
-                mt={1}
-                size="sm"
                 type="submit"
+                aria-label="submit"
+                variant="surface"
                 fontWeight="bold"
-                bg="#ECF2F8"
-                color="black"
               >
                 Submit
               </Button>
-            </form>
-          )}
-        </Box>
-        <Box spaceY={4}>
-          {guestbook
-            .sort(
-              (a, b) =>
-                new Date(b.created_at).getTime() -
-                new Date(a.created_at).getTime()
-            )
-            .map((item) => (
-              <Box
-                spaceY={1}
-                key={item.id}
-                p={2}
-                border="1px solid"
-                borderColor="gray.500"
-                borderRadius="sm"
-              >
-                <Flex
-                  direction={{ base: "column-reverse", sm: "row" }}
-                  w="full"
-                  justifyContent="space-between"
-                >
-                  <Text fontSize="lg" fontWeight="bold">
-                    {item.message}
-                  </Text>
-                  <Text fontSize="sm" fontWeight="medium">
-                    {dateFormatter.format(new Date(item.created_at))}
-                  </Text>
-                </Flex>
-                <Text fontSize="sm">@{item.username}</Text>
-              </Box>
-            ))}
-        </Box>
-      </Container>
-    </Box>
+            </DialogFooter>
+          </form>
+          <DialogCloseTrigger
+            onClick={handleCloseDialogMessage}
+            color="white"
+            _hover={{ bg: "none" }}
+          />
+        </DialogContent>
+      </DialogRoot>
+    </>
   );
 }
