@@ -1,10 +1,8 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+const nextConfig = {
   reactStrictMode: true,
   experimental: {
     optimizePackageImports: ["@chakra-ui/react"],
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;

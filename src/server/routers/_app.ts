@@ -36,6 +36,27 @@ export const appRouter = router({
 
         return data;
       }),
+    put: publicProcedure
+      .input(
+        z.object({
+          id: z.number(),
+          message: z.string(),
+          email: z.string(),
+          username: z.string(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        await prisma.guestbook.update({
+          data: {
+            message: input.message,
+          },
+          where: {
+            id: input.id,
+            username: input.username,
+            email: input.email,
+          },
+        });
+      }),
   },
 });
 
