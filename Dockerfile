@@ -3,7 +3,7 @@ FROM node:alpine AS base
 RUN apk add --no-cache g++ make py3-pip libc6-compat
 
 WORKDIR /app
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json .npmrc ./
 EXPOSE 3000
 
 FROM base AS build
