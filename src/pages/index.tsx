@@ -16,6 +16,7 @@ import { NEXT_PUBLIC_ADMIN_EMAIL } from "@/lib/utils/constants";
 import { isCreateNewMessageAtom } from "@/lib/utils/recoil";
 import { messageSchema } from "@/lib/utils/schemas";
 import { trpc } from "@/lib/utils/trpc";
+import { GuestbookProps } from "@/types";
 import {
   Box,
   Button,
@@ -33,14 +34,6 @@ import { NextSeo } from "next-seo";
 import { useForm } from "react-hook-form";
 import { FaGithub, FaGoogle } from "react-icons/fa";
 import { useRecoilState } from "recoil";
-
-interface GuestbookProps {
-  id: number;
-  created_at: string;
-  email: string;
-  username: string;
-  message: string;
-}
 
 export default function Guestbook() {
   const queryClient = useQueryClient();
@@ -74,10 +67,17 @@ export default function Guestbook() {
   const createNewMessageMutation = trpc.guestbook.post.useMutation({
     mutationKey: ["create-new-message"],
     onSuccess: async () =>
-      await queryClient.invalidateQueries({
-        queryKey: ["create-new-message"],
-        exact: true,
-      }),
+      await queryClient
+        .invalidateQueries({
+          queryKey: ["create-new-message"],
+          exact: true,
+        })
+        .then(() => {
+          toaster.create({
+            type: "success",
+            title: "Berhasil membuat pesan baru!",
+          });
+        }),
     onError: () => {
       toaster.create({
         type: "error",
@@ -90,10 +90,17 @@ export default function Guestbook() {
   const deleteMessageMutation = trpc.guestbook.delete.useMutation({
     mutationKey: ["delete-message"],
     onSuccess: async () =>
-      await queryClient.invalidateQueries({
-        queryKey: ["delete-message"],
-        exact: true,
-      }),
+      await queryClient
+        .invalidateQueries({
+          queryKey: ["delete-message"],
+          exact: true,
+        })
+        .then(() => {
+          toaster.create({
+            type: "success",
+            title: "Berhasil menghapus pesan ini!",
+          });
+        }),
     onError: () => {
       toaster.create({
         type: "error",
@@ -126,7 +133,6 @@ export default function Guestbook() {
         refetch();
       });
   }
-
   if (isPending) return <LoadingReactQuery />;
   if (isError) return <ErrorReactQuery />;
 
