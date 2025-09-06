@@ -1,4 +1,4 @@
-import { atom } from "recoil";
+import { atom } from "jotai";
 
 export const messageAtom = atom<string>({
   key: "message",

@@ -13,7 +13,7 @@ import {
 import { toaster } from "@/components/ui/toaster";
 import { dateFormatter } from "@/lib/helpers/date-formatter";
 import { NEXT_PUBLIC_ADMIN_EMAIL } from "@/lib/utils/constants";
-import { isCreateNewMessageAtom } from "@/lib/utils/recoil";
+import { isCreateNewMessageAtom } from "@/lib/utils/jotai";
 import { messageSchema } from "@/lib/utils/schemas";
 import { trpc } from "@/lib/utils/trpc";
 import { GuestbookProps } from "@/types";
@@ -29,16 +29,16 @@ import {
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { keepPreviousData, useQueryClient } from "@tanstack/react-query";
+import { useAtom } from "jotai";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { NextSeo } from "next-seo";
 import { useForm } from "react-hook-form";
 import { FaGithub, FaGoogle } from "react-icons/fa";
-import { useRecoilState } from "recoil";
 
 export default function Guestbook() {
   const queryClient = useQueryClient();
 
-  const [isCreateNewMessage, setIsCreateNewMessage] = useRecoilState(
+  const [isCreateNewMessage, setIsCreateNewMessage] = useAtom(
     isCreateNewMessageAtom
   );
 
