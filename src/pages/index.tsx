@@ -1,15 +1,5 @@
 import ErrorReactQuery from "@/components/error-react-query";
 import LoadingReactQuery from "@/components/loading-react-query";
-import {
-  DialogBackdrop,
-  DialogBody,
-  DialogCloseTrigger,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogRoot,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { toaster } from "@/components/ui/toaster";
 import { dateFormatter } from "@/lib/helpers/date-formatter";
 import { NEXT_PUBLIC_ADMIN_EMAIL } from "@/lib/utils/constants";
@@ -21,6 +11,14 @@ import {
   Box,
   Button,
   Container,
+  DialogBackdrop,
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogRoot,
+  DialogTitle,
   Flex,
   Heading,
   HStack,
@@ -235,7 +233,6 @@ export default function Guestbook() {
           </Box>
         </Container>
       </Box>
-      {/** Dialog Create New Message */}
       <DialogRoot
         placement="center"
         open={isCreateNewMessage}

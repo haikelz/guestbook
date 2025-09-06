@@ -36,20 +36,26 @@ export const appRouter = router({
 
         return data;
       }),
-    getByEmail: publicProcedure
-      .input(z.object({ email: z.string().email() }))
+    getWithEmail: publicProcedure
+      .input(z.object({ key: z.string() }))
       .query(async ({ input }) => {
         const data = await prisma.guestbook.findMany({
-          where: { email: input.email },
           select: {
             id: true,
             created_at: true,
-            email: false,
+            email: true,
             username: true,
             message: true,
           },
         });
         return data;
+      }),
+    deleteByEmail: publicProcedure
+      .input(z.object({ email: z.string().email() }))
+      .mutation(async ({ input }) => {
+        await prisma.guestbook.deleteMany({
+          where: { email: input.email },
+        });
       }),
     delete: publicProcedure
       .input(
