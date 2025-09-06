@@ -8,12 +8,12 @@ import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { httpBatchLink } from "@trpc/client";
+import { Provider } from "jotai";
 import { SessionProvider } from "next-auth/react";
 import { NextSeo } from "next-seo";
 import type { AppProps } from "next/app";
 import localFont from "next/font/local";
 import { useState } from "react";
-import { RecoilRoot } from "recoil";
 import SeoConfig from "../../next-seo.config";
 import { trpc } from "../lib/utils/trpc";
 
@@ -61,7 +61,7 @@ export default function App({
           }
         `}</style>
         <NextSeo {...SeoConfig} />
-        <RecoilRoot>
+        <Provider>
           <QueryClientProvider client={queryClient}>
             <ReactQueryDevtools />
             <ChakraProvider value={defaultSystem}>
@@ -69,7 +69,7 @@ export default function App({
               <Toaster />
             </ChakraProvider>
           </QueryClientProvider>
-        </RecoilRoot>
+        </Provider>
       </SessionProvider>
     </trpc.Provider>
   );
