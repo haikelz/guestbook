@@ -1,5 +1,6 @@
 import ErrorReactQuery from "@/components/error-react-query";
 import LoadingReactQuery from "@/components/loading-react-query";
+import { ProtectedLayout } from "@/components/protected-layout";
 import { toaster } from "@/components/ui/toaster";
 import { trpc } from "@/lib/utils/trpc";
 import {
@@ -7,6 +8,7 @@ import {
   CloseButton,
   DialogBackdrop,
   DialogBody,
+  DialogCloseTrigger,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -30,97 +32,138 @@ import {
   Portal,
   Stack,
   Text,
+  VStack,
 } from "@chakra-ui/react";
 import { keepPreviousData } from "@tanstack/react-query";
+import { atom, useAtom } from "jotai";
 import { useSession } from "next-auth/react";
-import { FaTrash } from "react-icons/fa";
+import { BiMenu } from "react-icons/bi";
+import { FaTrash, FaUser } from "react-icons/fa";
 
 export default function DashboardAdminPage() {
   const { data: session } = useSession();
-  const { data, isPending, isError } = trpc.guestbook.getWithEmail.useQuery(
-    { key: "get-guestbook" },
-    {
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      placeholderData: keepPreviousData,
-    }
-  );
+  const { data, isPending, isError, refetch } =
+    trpc.guestbook.getWithEmail.useQuery(
+      { key: "get-guestbook" },
+      {
+        refetchOnReconnect: false,
+        refetchOnWindowFocus: false,
+        placeholderData: keepPreviousData,
+      }
+    );
 
   if (isPending) return <LoadingReactQuery />;
   if (isError) return <ErrorReactQuery />;
 
-  const usersListWithoutDuplicate = data?.reduce((acc, item) => {
-    if (!acc.includes(item.email)) {
-      return [...acc, item.email];
-    }
-    return acc;
-  }, [] as string[]);
-
-  const handleClick = (email: string) => {
-    console.log(email);
-  };
+  const usersListWithoutDuplicate = data
+    ?.reduce((acc, item) => {
+      if (!acc.includes(item.email)) {
+        return [...acc, item.email];
+      }
+      return acc;
+    }, [] as string[])
+    .sort((a, b) => a.localeCompare(b));
 
   return (
-    <Stack>
-      {/** Navbar */} {/** Sidebar */}
-      {/** Content */}
-      {/** Footer */}
-      <Heading>Dashboard Admin</Heading>
+    <ProtectedLayout session={session}>
       <Stack>
-        Daftar User:
-        <Grid
-          templateColumns="repeat(4, 1fr)"
-          gap={2}
-          border="1px solid"
-          borderColor="gray.500"
+        <HStack
+          bg="gray.950"
+          p={4}
+          w="full"
           borderRadius="sm"
-          p={2}
+          justifyContent="space-between"
+          pos="fixed"
+          top={0}
+          zIndex={1000}
         >
-          {usersListWithoutDuplicate?.map((item) => (
-            <GridItem
-              key={item}
-              border="1px solid"
-              borderColor="gray.500"
-              borderRadius="sm"
-              p={2}
+          <Heading>Dashboard Admin</Heading>
+          <DrawerRoot>
+            <DrawerTrigger asChild>
+              <Button size="xs">
+                <BiMenu />
+              </Button>
+            </DrawerTrigger>
+            <Portal>
+              <DrawerBackdrop />
+              <DrawerPositioner>
+                <DrawerContent bg="gray.950">
+                  <DrawerCloseTrigger
+                    asChild
+                    color="white"
+                    _hover={{ bg: "none" }}
+                  >
+                    <CloseButton size="sm" />
+                  </DrawerCloseTrigger>
+                  <DrawerHeader>
+                    <DrawerTitle>{session?.user.name}</DrawerTitle>
+                  </DrawerHeader>
+                  <DrawerBody>
+                    {session ? (
+                      <>
+                        <p>
+                          {session?.user.email} ({session?.user.name})
+                        </p>
+                        <p>{session?.user.role}</p>
+                      </>
+                    ) : (
+                      "Not found"
+                    )}
+                  </DrawerBody>
+                </DrawerContent>
+              </DrawerPositioner>
+            </Portal>
+          </DrawerRoot>
+        </HStack>
+        <Stack p={4} pt={20}>
+          <VStack alignItems="center" gap={8}>
+            <Heading>Daftar User</Heading>
+            <Grid
+              templateColumns={{
+                sm: "repeat(1, 1fr)",
+                md: "repeat(2, 1fr)",
+                lg: "repeat(4, 1fr)",
+              }}
+              gap={4}
+              w="fit"
             >
-              <HStack>
-                <Text>{item}</Text>
-                <DialogDeleteUser email={item} />
-              </HStack>
-            </GridItem>
-          ))}
-        </Grid>
+              {usersListWithoutDuplicate?.map((item) => (
+                <GridItem
+                  key={item}
+                  border="1px solid"
+                  borderColor="gray.500"
+                  borderRadius="sm"
+                  p={2}
+                  w="fit"
+                >
+                  <HStack gap={4}>
+                    <FaUser />
+                    <Text>{item}</Text>
+                    <DialogDeleteUser email={item} refetch={refetch} />
+                  </HStack>
+                </GridItem>
+              ))}
+            </Grid>
+            <DialogDeleteAllUsers refetch={refetch} />
+          </VStack>
+        </Stack>
       </Stack>
-      <DrawerRoot>
-        <DrawerTrigger asChild>
-          <Button variant="outline" size="sm">
-            Open Drawer
-          </Button>
-        </DrawerTrigger>
-        <Portal>
-          <DrawerBackdrop />
-          <DrawerPositioner>
-            <DrawerContent>
-              <DrawerCloseTrigger asChild>
-                <CloseButton size="sm" />
-              </DrawerCloseTrigger>
-              <DrawerHeader>
-                <DrawerTitle>{session?.user.name}</DrawerTitle>
-              </DrawerHeader>
-              <DrawerBody>
-                <p>{session?.user.email}</p>
-              </DrawerBody>
-            </DrawerContent>
-          </DrawerPositioner>
-        </Portal>
-      </DrawerRoot>
-    </Stack>
+    </ProtectedLayout>
   );
 }
 
-function DialogDeleteUser({ email }: { email: string }) {
-  const deleteByEmailMutation = trpc.guestbook.deleteByEmail.useMutation();
+const isOpenDeleteUserAtom = atom<boolean>(false);
+
+function DialogDeleteUser({
+  email,
+  refetch,
+}: {
+  email: string;
+  refetch: () => void;
+}) {
+  const [isOpenDeleteUser, setIsOpenDeleteUser] = useAtom(isOpenDeleteUserAtom);
+
+  const deleteByEmailMutation = trpc.guestbook.deleteUserByEmail.useMutation();
 
   async function handleDelete() {
     await deleteByEmailMutation.mutateAsync({ email }).then(() => {
@@ -128,28 +171,102 @@ function DialogDeleteUser({ email }: { email: string }) {
         type: "success",
         title: "User deleted successfully",
       });
+      setIsOpenDeleteUser(false);
+      refetch();
     });
   }
 
   return (
-    <DialogRoot>
-      <DialogTrigger>
+    <DialogRoot
+      placement="center"
+      size={{ base: "sm", sm: "lg" }}
+      preventScroll
+      lazyMount
+      open={isOpenDeleteUser}
+      onOpenChange={(details) => setIsOpenDeleteUser(details.open)}
+    >
+      <DialogBackdrop />
+      <DialogTrigger asChild>
         <Button size="2xs">
           <FaTrash />
         </Button>
       </DialogTrigger>
-      <DialogBackdrop />
       <Portal>
         <DialogPositioner>
-          <DialogContent>
+          <DialogContent bg="gray.900">
+            <DialogCloseTrigger color="white" _hover={{ bg: "none" }} asChild>
+              <CloseButton size="2xs" />
+            </DialogCloseTrigger>
             <DialogHeader>
               <DialogTitle>Delete User</DialogTitle>
             </DialogHeader>
             <DialogBody>
-              <Text>Are you sure you want to delete this user?</Text>
+              <Text>
+                Are you sure you want to delete this user? All of the message
+                from this user will be deleted!
+              </Text>
             </DialogBody>
             <DialogFooter>
-              <Button onClick={handleDelete}>Delete</Button>
+              <Button bg="red" onClick={handleDelete}>
+                Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </DialogPositioner>
+      </Portal>
+    </DialogRoot>
+  );
+}
+
+const isOpenDeleteAllUsersAtom = atom<boolean>(false);
+
+function DialogDeleteAllUsers({ refetch }: { refetch: () => void }) {
+  const [isOpenDeleteAllUsers, setIsOpenDeleteAllUsers] = useAtom(
+    isOpenDeleteAllUsersAtom
+  );
+
+  const deleteAllUsersMutation = trpc.guestbook.deleteAllUsers.useMutation();
+
+  async function handleDeleteAllUsers() {
+    await deleteAllUsersMutation.mutateAsync().then(() => {
+      toaster.create({
+        type: "success",
+        title: "All users deleted successfully",
+      });
+      setIsOpenDeleteAllUsers(false);
+      refetch();
+    });
+  }
+
+  return (
+    <DialogRoot
+      placement="center"
+      size={{ base: "sm", sm: "lg" }}
+      preventScroll
+      lazyMount
+      open={isOpenDeleteAllUsers}
+      onOpenChange={(details) => setIsOpenDeleteAllUsers(details.open)}
+    >
+      <DialogTrigger asChild>
+        <Button>Delete All Users</Button>
+      </DialogTrigger>
+      <DialogBackdrop />
+      <Portal>
+        <DialogPositioner>
+          <DialogContent bg="gray.900">
+            <DialogCloseTrigger color="white" _hover={{ bg: "none" }} asChild>
+              <CloseButton size="2xs" />
+            </DialogCloseTrigger>
+            <DialogHeader>
+              <DialogTitle>Delete All Users</DialogTitle>
+            </DialogHeader>
+            <DialogBody>
+              <Text>Are you sure you want to delete all users?</Text>
+            </DialogBody>
+            <DialogFooter>
+              <Button bg="red" onClick={handleDeleteAllUsers}>
+                Delete
+              </Button>
             </DialogFooter>
           </DialogContent>
         </DialogPositioner>

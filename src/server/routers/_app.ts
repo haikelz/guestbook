@@ -1,6 +1,11 @@
 import { prisma } from "@/lib/utils/prisma";
 import { z } from "zod";
-import { createCallerFactory, publicProcedure, router } from "../trpc";
+import {
+  adminProcedure,
+  createCallerFactory,
+  publicProcedure,
+  router,
+} from "../trpc";
 
 export const appRouter = router({
   guestbook: {
@@ -50,14 +55,14 @@ export const appRouter = router({
         });
         return data;
       }),
-    deleteByEmail: publicProcedure
+    deleteUserByEmail: adminProcedure
       .input(z.object({ email: z.string().email() }))
       .mutation(async ({ input }) => {
         await prisma.guestbook.deleteMany({
           where: { email: input.email },
         });
       }),
-    delete: publicProcedure
+    delete: adminProcedure
       .input(
         z.object({
           id: z.number(),
@@ -72,7 +77,10 @@ export const appRouter = router({
           },
         });
       }),
-    put: publicProcedure
+    deleteAllUsers: adminProcedure.mutation(async () => {
+      await prisma.guestbook.deleteMany();
+    }),
+    put: adminProcedure
       .input(
         z.object({
           id: z.number(),

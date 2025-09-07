@@ -1,16 +1,8 @@
 import { atom } from "jotai";
 
-export const messageAtom = atom<string>({
-  key: "message",
-  default: "",
-});
+export const messageAtom = atom<string>("");
 
-export const isEditMessageAtom = atom<boolean>({
-  key: "isEditMessage",
-  default: false,
-});
 
-export const isCreateNewMessageAtom = atom<boolean>({
-  key: "isCreateNewMessage",
-  default: false,
-});
+export const isEditMessageAtom = atom<boolean>(false);
+
+export const isCreateNewMessageAtom = atom<boolean>(false);

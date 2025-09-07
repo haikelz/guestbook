@@ -3,13 +3,13 @@ import LoadingReactQuery from "@/components/loading-react-query";
 import { toaster } from "@/components/ui/toaster";
 import { dateFormatter } from "@/lib/helpers/date-formatter";
 import { NEXT_PUBLIC_ADMIN_EMAIL } from "@/lib/utils/constants";
-import { isCreateNewMessageAtom } from "@/lib/utils/jotai";
 import { messageSchema } from "@/lib/utils/schemas";
 import { trpc } from "@/lib/utils/trpc";
 import { GuestbookProps } from "@/types";
 import {
   Box,
   Button,
+  CloseButton,
   Container,
   DialogBackdrop,
   DialogBody,
@@ -17,27 +17,34 @@ import {
   DialogContent,
   DialogFooter,
   DialogHeader,
+  DialogPositioner,
   DialogRoot,
   DialogTitle,
+  DialogTrigger,
   Flex,
   Heading,
   HStack,
+  Portal,
   Text,
   Textarea,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { keepPreviousData, useQueryClient } from "@tanstack/react-query";
-import { useAtom } from "jotai";
+import { atom, useAtom } from "jotai";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { NextSeo } from "next-seo";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
+import { BiChevronRight } from "react-icons/bi";
 import { FaGithub, FaGoogle } from "react-icons/fa";
+
+const isOpenCreateMessageAtom = atom(false);
 
 export default function Guestbook() {
   const queryClient = useQueryClient();
 
-  const [isCreateNewMessage, setIsCreateNewMessage] = useAtom(
-    isCreateNewMessageAtom
+  const [isOpenCreateMessage, setIsOpenCreateMessage] = useAtom(
+    isOpenCreateMessageAtom
   );
 
   const {
@@ -62,28 +69,6 @@ export default function Guestbook() {
 
   const { data: session } = useSession();
 
-  const createNewMessageMutation = trpc.guestbook.post.useMutation({
-    mutationKey: ["create-new-message"],
-    onSuccess: async () =>
-      await queryClient
-        .invalidateQueries({
-          queryKey: ["create-new-message"],
-          exact: true,
-        })
-        .then(() => {
-          toaster.create({
-            type: "success",
-            title: "Berhasil membuat pesan baru!",
-          });
-        }),
-    onError: () => {
-      toaster.create({
-        type: "error",
-        title: "Gagal membuat pesan baru!",
-      });
-    },
-  });
-
   // only for admin
   const deleteMessageMutation = trpc.guestbook.delete.useMutation({
     mutationKey: ["delete-message"],
@@ -107,20 +92,6 @@ export default function Guestbook() {
     },
   });
 
-  async function onSubmit() {
-    await createNewMessageMutation
-      .mutateAsync({
-        email: session?.user.email as string,
-        username: session?.user.name as string,
-        message: getValues("message"),
-      })
-      .then(() => {
-        refetch();
-        setValue("message", "");
-        setIsCreateNewMessage(false);
-      });
-  }
-
   async function handleDeleteMessage(id: number, username: string) {
     await deleteMessageMutation
       .mutateAsync({
@@ -131,6 +102,7 @@ export default function Guestbook() {
         refetch();
       });
   }
+
   if (isPending) return <LoadingReactQuery />;
   if (isError) return <ErrorReactQuery />;
 
@@ -148,6 +120,9 @@ export default function Guestbook() {
         description="Write a message for me and others"
       />
       <Box w="full" py={4}>
+        {session && session.user.role === "admin" ? (
+          <GoToDashboardAdmin />
+        ) : null}
         <Container spaceY={5} maxW="3xl">
           <Box spaceY={4}>
             <Box spaceY={2}>
@@ -180,9 +155,7 @@ export default function Guestbook() {
                 </Button>
               </HStack>
             ) : (
-              <Button onClick={() => setIsCreateNewMessage(true)}>
-                Create your message
-              </Button>
+              <DialogCreateMessage refetch={refetch} />
             )}
           </Box>
           <Box spaceY={4}>
@@ -233,45 +206,109 @@ export default function Guestbook() {
           </Box>
         </Container>
       </Box>
-      <DialogRoot
-        placement="center"
-        open={isCreateNewMessage}
-        onOpenChange={(e) => setIsCreateNewMessage(e.open)}
-        size={{ base: "sm", sm: "lg" }}
-        preventScroll
-        lazyMount
-      >
-        <DialogBackdrop />
-        <DialogContent bg="gray.900">
-          <DialogHeader>
-            <DialogTitle>Create New Message</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <DialogBody>
-              <Textarea
-                {...register("message", { required: true })}
-                placeholder="Your Message...."
-                borderColor="gray.500"
-                h="80px"
-                _placeholder={{ color: "gray.500" }}
-                required
-              />
-              <Text>{errors.message ? errors.message.message : null}</Text>
-            </DialogBody>
-            <DialogFooter>
-              <Button
-                type="submit"
-                aria-label="submit"
-                variant="surface"
-                fontWeight="bold"
-              >
-                Submit
-              </Button>
-            </DialogFooter>
-          </form>
-          <DialogCloseTrigger color="white" _hover={{ bg: "none" }} />
-        </DialogContent>
-      </DialogRoot>
     </>
+  );
+}
+
+function GoToDashboardAdmin() {
+  return (
+    <Link href="/dashboard/admin">
+      <Button pos="fixed" top={4} right={4}>
+        <Text>Go to Dashboard Admin</Text>
+        <BiChevronRight />
+      </Button>
+    </Link>
+  );
+}
+
+function DialogCreateMessage({ refetch }: { refetch: () => void }) {
+  const [isOpenCreateMessage, setIsOpenCreateMessage] = useAtom(
+    isOpenCreateMessageAtom
+  );
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    getValues,
+  } = useForm({
+    defaultValues: { message: "" },
+    resolver: zodResolver(messageSchema),
+  });
+
+  async function onSubmit() {
+    await createNewMessageMutation
+      .mutateAsync({
+        email: session?.user.email as string,
+        username: session?.user.name as string,
+        message: getValues("message"),
+      })
+      .then(() => {
+        refetch();
+        setValue("message", "");
+      });
+
+    setIsOpenCreateMessage(false);
+  }
+
+  const createNewMessageMutation = trpc.guestbook.post.useMutation({
+    mutationKey: ["create-new-message"],
+  });
+
+  const { data: session } = useSession();
+
+  return (
+    <DialogRoot
+      placement="center"
+      size={{ base: "sm", sm: "lg" }}
+      preventScroll
+      lazyMount
+      open={isOpenCreateMessage}
+      onOpenChange={(details) => setIsOpenCreateMessage(details.open)}
+    >
+      <DialogBackdrop />
+      <DialogTrigger asChild>
+        <Button onClick={() => setIsOpenCreateMessage(true)}>
+          Create New Message
+        </Button>
+      </DialogTrigger>
+      <Portal>
+        <DialogPositioner>
+          <DialogContent bg="gray.900">
+            <DialogCloseTrigger color="white" _hover={{ bg: "none" }} asChild>
+              <CloseButton size="2xs" />
+            </DialogCloseTrigger>
+            <DialogHeader>
+              <DialogTitle>Create New Message</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <DialogBody>
+                <Textarea
+                  {...register("message", { required: true })}
+                  placeholder="Your Message...."
+                  borderColor="gray.500"
+                  h="80px"
+                  _placeholder={{ color: "gray.500" }}
+                  required
+                />
+                <Text>{errors.message ? errors.message.message : null}</Text>
+              </DialogBody>
+              <DialogFooter>
+                <Button
+                  type="submit"
+                  aria-label="submit"
+                  variant="surface"
+                  fontWeight="bold"
+                >
+                  Submit
+                </Button>
+              </DialogFooter>
+            </form>
+            <DialogCloseTrigger color="white" _hover={{ bg: "none" }} />
+          </DialogContent>
+        </DialogPositioner>
+      </Portal>
+    </DialogRoot>
   );
 }
