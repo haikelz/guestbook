@@ -30,6 +30,7 @@
     "@trpc/react-query": "next",
     "@trpc/server": "next",
     "axios": "^1.7.8",
+    "jotai": "^2.13.1",
     "next": "14.2.14",
     "next-auth": "^4.24.10",
     "next-seo": "^6.6.0",
@@ -37,7 +38,6 @@
     "react-dom": "^18",
     "react-hook-form": "^7.53.2",
     "react-icons": "^5.4.0",
-    "recoil": "^0.7.7",
     "zod": "^3.23.8"
   },
   "devDependencies": {
