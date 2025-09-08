@@ -22,11 +22,7 @@ export function ProtectedLayout({
 }) {
   const router = useRouter();
 
-  if (!session) {
-    return <div>Not found</div>;
-  }
-
-  if (session.user.role !== "admin") {
+  if (!session || session.user.role !== "admin") {
     const [seconds, setSeconds] = useAtom(secondsAtom);
 
     useEffect(() => {
