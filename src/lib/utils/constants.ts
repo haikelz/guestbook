@@ -24,3 +24,8 @@ export const NEXT_PUBLIC_GOOGLE_ID = process.env
 export const NEXT_PUBLIC_GOOGLE_SECRET = process.env
   .NEXT_PUBLIC_GOOGLE_SECRET as string;
 export const EMAIL_NAME = process.env.EMAIL_NAME as string;
+
+export const NEXT_PUBLIC_DEVELOPMENT_API_URL = process.env
+  .NEXT_PUBLIC_DEVELOPMENT_API_URL as string;
+export const NEXT_PUBLIC_PRODUCTION_API_URL = process.env
+  .NEXT_PUBLIC_PRODUCTION_API_URL as string;

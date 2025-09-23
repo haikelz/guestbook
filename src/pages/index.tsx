@@ -158,7 +158,7 @@ export default function Guestbook() {
               <DialogCreateMessage refetch={refetch} />
             )}
           </Box>
-          <Box spaceY={4}>
+          <Box spaceY={4} overflowY="scroll" minH="100vh" maxH="100vh" pb={44}>
             {sortedGuestbookByDate.map((item) => (
               <Box
                 spaceY={1}
@@ -167,6 +167,7 @@ export default function Guestbook() {
                 border="1px solid"
                 borderColor="gray.500"
                 borderRadius="sm"
+                backgroundColor="gray.950"
               >
                 <Flex
                   direction={{ base: "column-reverse", sm: "row" }}

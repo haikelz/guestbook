@@ -152,8 +152,6 @@ export default function DashboardAdminPage() {
   );
 }
 
-const isOpenDeleteUserAtom = atom<boolean>(false);
-
 function DialogDeleteUser({
   email,
   refetch,
@@ -161,8 +159,6 @@ function DialogDeleteUser({
   email: string;
   refetch: () => void;
 }) {
-  const [isOpenDeleteUser, setIsOpenDeleteUser] = useAtom(isOpenDeleteUserAtom);
-
   const deleteByEmailMutation = trpc.guestbook.deleteUserByEmail.useMutation();
 
   async function handleDelete() {
@@ -171,7 +167,6 @@ function DialogDeleteUser({
         type: "success",
         title: "User deleted successfully",
       });
-      setIsOpenDeleteUser(false);
       refetch();
     });
   }
@@ -182,8 +177,6 @@ function DialogDeleteUser({
       size={{ base: "sm", sm: "lg" }}
       preventScroll
       lazyMount
-      open={isOpenDeleteUser}
-      onOpenChange={(details) => setIsOpenDeleteUser(details.open)}
     >
       <DialogBackdrop />
       <DialogTrigger asChild>
