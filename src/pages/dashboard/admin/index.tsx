@@ -35,7 +35,6 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { keepPreviousData } from "@tanstack/react-query";
-import { atom, useAtom } from "jotai";
 import { useSession } from "next-auth/react";
 import { BiMenu } from "react-icons/bi";
 import { FaTrash, FaUser } from "react-icons/fa";
@@ -211,13 +210,7 @@ function DialogDeleteUser({
   );
 }
 
-const isOpenDeleteAllUsersAtom = atom<boolean>(false);
-
 function DialogDeleteAllUsers({ refetch }: { refetch: () => void }) {
-  const [isOpenDeleteAllUsers, setIsOpenDeleteAllUsers] = useAtom(
-    isOpenDeleteAllUsersAtom
-  );
-
   const deleteAllUsersMutation = trpc.guestbook.deleteAllUsers.useMutation();
 
   async function handleDeleteAllUsers() {
@@ -226,7 +219,6 @@ function DialogDeleteAllUsers({ refetch }: { refetch: () => void }) {
         type: "success",
         title: "All users deleted successfully",
       });
-      setIsOpenDeleteAllUsers(false);
       refetch();
     });
   }
@@ -237,8 +229,6 @@ function DialogDeleteAllUsers({ refetch }: { refetch: () => void }) {
       size={{ base: "sm", sm: "lg" }}
       preventScroll
       lazyMount
-      open={isOpenDeleteAllUsers}
-      onOpenChange={(details) => setIsOpenDeleteAllUsers(details.open)}
     >
       <DialogTrigger asChild>
         <Button>Delete All Users</Button>
