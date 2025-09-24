@@ -1,5 +1,5 @@
 import {
-  EMAIL_NAME,
+  NEXT_PUBLIC_ADMIN_EMAIL,
   NEXT_PUBLIC_GITHUB_ID,
   NEXT_PUBLIC_GITHUB_SECRET,
   NEXT_PUBLIC_GITHUB_USERNAME,
@@ -35,7 +35,7 @@ export const options: NextAuthOptions = {
       profile(profile: GoogleProfile): Awaitable<User> {
         return {
           ...profile,
-          role: profile.email === EMAIL_NAME ? "admin" : "guest",
+          role: profile.email === NEXT_PUBLIC_ADMIN_EMAIL ? "admin" : "guest",
           name: profile.name,
           id: profile.sub,
           image: profile.picture,

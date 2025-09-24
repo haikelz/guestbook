@@ -1,4 +1,4 @@
-import FuzzyText from "@/components/fuzzy-text";
+import FuzzyText from "@/components/react-bits/fuzzy-text";
 import { Button, VStack } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 

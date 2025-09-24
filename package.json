@@ -29,6 +29,7 @@
     "@trpc/next": "next",
     "@trpc/react-query": "next",
     "@trpc/server": "next",
+    "gsap": "^3.13.0",
     "jotai": "^2.13.1",
     "next": "14.2.14",
     "next-auth": "^4.24.10",

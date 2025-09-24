@@ -33,10 +33,18 @@ import { keepPreviousData, useQueryClient } from "@tanstack/react-query";
 import { atom, useAtom } from "jotai";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { NextSeo } from "next-seo";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { BiChevronRight } from "react-icons/bi";
 import { FaGithub, FaGoogle } from "react-icons/fa";
+
+const AnimatedContent = dynamic(
+  () => import("@/components/react-bits/animated-content"),
+  {
+    ssr: false,
+  }
+);
 
 const isOpenCreateMessageAtom = atom(false);
 
@@ -113,6 +121,8 @@ export default function Guestbook() {
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
 
+  console.log(session);
+
   return (
     <>
       <NextSeo
@@ -124,87 +134,107 @@ export default function Guestbook() {
           <GoToDashboardAdmin />
         ) : null}
         <Container spaceY={5} maxW="3xl">
-          <Box spaceY={4}>
-            <Box spaceY={2}>
-              <Heading as="h1" fontSize="3xl" w="fit" fontWeight="extrabold">
-                guestbook.ekel.dev
-              </Heading>
-              <Text>
-                Write a message for me and others.{" "}
-                {session ? (
-                  <span
-                    style={{
-                      fontWeight: "bold",
-                      textDecoration: "underline",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => signOut()}
-                  >
-                    Sign Out
-                  </span>
-                ) : null}
-              </Text>
-            </Box>
-            {!session ? (
-              <HStack>
-                <Button fontWeight="bold" onClick={() => signIn("github")}>
-                  <FaGithub /> Github
-                </Button>
-                <Button fontWeight="bold" onClick={() => signIn("google")}>
-                  <FaGoogle /> Google
-                </Button>
-              </HStack>
-            ) : (
-              <DialogCreateMessage refetch={refetch} />
-            )}
-          </Box>
-          <Box spaceY={4} overflowY="scroll" minH="100vh" maxH="100vh" pb={44}>
-            {sortedGuestbookByDate.map((item) => (
-              <Box
-                spaceY={1}
-                key={item.id}
-                p={2}
-                border="1px solid"
-                borderColor="gray.500"
-                borderRadius="sm"
-                backgroundColor="gray.950"
-              >
-                <Flex
-                  direction={{ base: "column-reverse", sm: "row" }}
-                  w="full"
-                  justifyContent="space-between"
-                >
-                  <Text fontSize="lg" fontWeight="bold">
-                    {item.message}
-                  </Text>
-                  <Text fontSize="sm" fontWeight="medium">
-                    {dateFormatter.format(new Date(item.created_at))}
-                  </Text>
-                </Flex>
-                <Text fontSize="sm">@{item.username}</Text>
-                {session?.user.email === NEXT_PUBLIC_ADMIN_EMAIL ? (
-                  <HStack>
-                    <button
-                      type="button"
-                      aria-label="delete message"
-                      style={{ cursor: "pointer" }}
-                      onClick={() =>
-                        handleDeleteMessage(item.id, item.username)
-                      }
+          <AnimatedContent
+            distance={150}
+            direction="horizontal"
+            duration={0.8}
+            reverse={true}
+            ease="power3.out"
+          >
+            <Box spaceY={4}>
+              <Box spaceY={2}>
+                <Heading as="h1" fontSize="3xl" w="fit" fontWeight="extrabold">
+                  guestbook.ekel.dev
+                </Heading>
+                <Text>
+                  Write a message for me and others.{" "}
+                  {session ? (
+                    <span
+                      style={{
+                        fontWeight: "bold",
+                        textDecoration: "underline",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => signOut()}
                     >
-                      <Text
-                        fontWeight="bold"
-                        textDecoration="underline"
-                        fontSize="14px"
-                      >
-                        Delete
-                      </Text>
-                    </button>
-                  </HStack>
-                ) : null}
+                      Sign Out
+                    </span>
+                  ) : null}
+                </Text>
               </Box>
-            ))}
-          </Box>
+              {!session ? (
+                <HStack>
+                  <Button fontWeight="bold" onClick={() => signIn("github")}>
+                    <FaGithub /> Github
+                  </Button>
+                  <Button fontWeight="bold" onClick={() => signIn("google")}>
+                    <FaGoogle /> Google
+                  </Button>
+                </HStack>
+              ) : (
+                <DialogCreateMessage refetch={refetch} />
+              )}
+            </Box>
+          </AnimatedContent>
+          <AnimatedContent
+            direction="vertical"
+            duration={0.8}
+            ease="power3.out"
+          >
+            <Box
+              spaceY={4}
+              overflowY="scroll"
+              minH="100vh"
+              maxH="100vh"
+              pb={44}
+            >
+              {sortedGuestbookByDate.map((item, index) => (
+                <Box
+                  spaceY={1}
+                  p={2}
+                  border="1px solid"
+                  borderColor="gray.500"
+                  borderRadius="sm"
+                  backgroundColor="gray.950"
+                  key={item.id}
+                >
+                  <Flex
+                    direction={{ base: "column-reverse", sm: "row" }}
+                    w="full"
+                    justifyContent="space-between"
+                  >
+                    <Text fontSize="lg" fontWeight="bold">
+                      {item.message}
+                    </Text>
+                    <Text fontSize="sm" fontWeight="medium">
+                      {dateFormatter.format(new Date(item.created_at))}
+                    </Text>
+                  </Flex>
+                  <Text fontSize="sm">@{item.username}</Text>
+                  {session?.user.email === NEXT_PUBLIC_ADMIN_EMAIL ? (
+                    <HStack>
+                      <button
+                        type="button"
+                        aria-label="delete message"
+                        style={{ cursor: "pointer" }}
+                        onClick={() =>
+                          handleDeleteMessage(item.id, item.username)
+                        }
+                      >
+                        <Text
+                          fontWeight="bold"
+                          textDecoration="underline"
+                          fontSize="14px"
+                        >
+                          Delete
+                        </Text>
+                      </button>
+                    </HStack>
+                  ) : null}
+                </Box>
+              ))}
+            </Box>
+          </AnimatedContent>
         </Container>
       </Box>
     </>

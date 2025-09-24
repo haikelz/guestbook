@@ -1,4 +1,4 @@
-import LiquidEther from "@/components/liquid-ether";
+import LiquidEther from "@/components/react-bits/liquid-ether";
 import { Toaster } from "@/components/ui/toaster";
 import {
   NEXT_PUBLIC_DEVELOPMENT_URL,
