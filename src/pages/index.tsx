@@ -35,6 +35,9 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import { NextSeo } from "next-seo";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { createDetector } from "profanity-kit/core";
+import { english } from "profanity-kit/languages/en";
+import { indonesian } from "profanity-kit/languages/id";
 import { useForm } from "react-hook-form";
 import { BiChevronRight } from "react-icons/bi";
 import { FaGithub, FaGoogle } from "react-icons/fa";
@@ -43,28 +46,17 @@ const AnimatedContent = dynamic(
   () => import("@/components/react-bits/animated-content"),
   {
     ssr: false,
-  }
+  },
 );
 
 const isOpenCreateMessageAtom = atom(false);
 
 export default function Guestbook() {
-  const queryClient = useQueryClient();
-
-  const [isOpenCreateMessage, setIsOpenCreateMessage] = useAtom(
-    isOpenCreateMessageAtom
-  );
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-    getValues,
-  } = useForm({
-    defaultValues: { message: "" },
-    resolver: zodResolver(messageSchema),
+  const detector = createDetector({
+    languages: [english, indonesian],
   });
+
+  const queryClient = useQueryClient();
 
   const { refetch, data, isPending, isError } = trpc.guestbook.get.useQuery(
     { key: "get-guestbook" },
@@ -72,7 +64,7 @@ export default function Guestbook() {
       placeholderData: keepPreviousData,
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   const { data: session } = useSession();
@@ -116,12 +108,14 @@ export default function Guestbook() {
 
   const guestbook: Omit<GuestbookProps, "email">[] = data;
 
-  const sortedGuestbookByDate = guestbook.sort(
+  const profanityFreeGuestbook = guestbook.map((item) => ({
+    ...item,
+    message: detector.filter(item.message),
+  }));
+  const sortedGuestbookByDate = profanityFreeGuestbook.sort(
     (a, b) =>
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
   );
-
-  console.log(session);
 
   return (
     <>
@@ -254,7 +248,7 @@ function GoToDashboardAdmin() {
 
 function DialogCreateMessage({ refetch }: { refetch: () => void }) {
   const [isOpenCreateMessage, setIsOpenCreateMessage] = useAtom(
-    isOpenCreateMessageAtom
+    isOpenCreateMessageAtom,
   );
 
   const {
