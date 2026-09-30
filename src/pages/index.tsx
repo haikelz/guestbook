@@ -263,10 +263,16 @@ function DialogCreateMessage({ refetch }: { refetch: () => void }) {
   });
 
   async function onSubmit() {
+    const email = session?.user.email;
+    const username =
+      session?.user.name ?? email?.split("@")[0];
+
+    if (!email || !username) return;
+
     await createNewMessageMutation
       .mutateAsync({
-        email: session?.user.email as string,
-        username: session?.user.name as string,
+        email,
+        username,
         message: getValues("message"),
       })
       .then(() => {

@@ -23,7 +23,7 @@ export const options: NextAuthOptions = {
           ...profile,
           role:
             profile.login === NEXT_PUBLIC_GITHUB_USERNAME ? "admin" : "guest",
-          name: profile.name,
+          name: profile.name ?? profile.login,
           id: profile.id.toString(),
           image: profile.avatar_url,
         };
@@ -36,7 +36,7 @@ export const options: NextAuthOptions = {
         return {
           ...profile,
           role: profile.email === NEXT_PUBLIC_ADMIN_EMAIL ? "admin" : "guest",
-          name: profile.name,
+          name: profile.name ?? profile.email?.split("@")[0] ?? profile.sub,
           id: profile.sub,
           image: profile.picture,
         };
