@@ -1,14 +1,12 @@
-import { Flex, HStack, Spinner, Text } from "@chakra-ui/react";
+import { Spinner } from "@heroui/react";
 
 export default function LoadingReactQuery() {
   return (
-    <Flex justifyContent="center" alignItems="center" height="100vh">
-      <HStack>
-        <Text fontWeight="bold" fontSize="xl">
-          Loading
-        </Text>
+    <main className="guestbook-state-page" role="status">
+      <div className="guestbook-loading-state">
         <Spinner />
-      </HStack>
-    </Flex>
+        <span>Loading guestbook…</span>
+      </div>
+    </main>
   );
 }

@@ -41,7 +41,7 @@ export const appRouter = router({
 
         return data;
       }),
-    getWithEmail: publicProcedure
+    getWithEmail: adminProcedure
       .input(z.object({ key: z.string() }))
       .query(async ({ input }) => {
         const data = await prisma.guestbook.findMany({

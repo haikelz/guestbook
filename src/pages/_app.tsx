@@ -1,11 +1,9 @@
 import LiquidEther from "@/components/react-bits/liquid-ether";
-import { Toaster } from "@/components/ui/toaster";
 import {
   NEXT_PUBLIC_DEVELOPMENT_URL,
   NEXT_PUBLIC_PRODUCTION_URL,
 } from "@/lib/utils/constants";
 import "@/styles/globals.css";
-import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { httpBatchLink } from "@trpc/client";
@@ -14,6 +12,7 @@ import { SessionProvider } from "next-auth/react";
 import { NextSeo } from "next-seo";
 import type { AppProps } from "next/app";
 import localFont from "next/font/local";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import SeoConfig from "../../next-seo.config";
 import { trpc } from "../lib/utils/trpc";
@@ -33,6 +32,8 @@ export default function App({
   Component,
   pageProps: { session, ...pageProps },
 }: AppProps) {
+  const router = useRouter();
+  const usesLiquidEther = router.pathname !== "/dashboard/admin";
   const queryClient = new QueryClient();
   const [trpcClient] = useState(() =>
     trpc.createClient({
@@ -45,7 +46,7 @@ export default function App({
           }/api/trpc`,
         }),
       ],
-    })
+    }),
   );
 
   return (
@@ -65,12 +66,12 @@ export default function App({
         <Provider>
           <QueryClientProvider client={queryClient}>
             <ReactQueryDevtools />
-            <ChakraProvider value={defaultSystem}>
+            {usesLiquidEther ? (
               <div
                 style={{ width: "100%", height: "100vh", position: "relative" }}
               >
                 <LiquidEther
-                  colors={["#5227FF", "#FF9FFC", "#B19EEF"]}
+                  colors={["#2563EB", "#38BDF8", "#93C5FD"]}
                   mouseForce={20}
                   cursorSize={100}
                   isViscous={false}
@@ -99,8 +100,9 @@ export default function App({
                   <Component {...pageProps} />
                 </div>
               </div>
-              <Toaster />
-            </ChakraProvider>
+            ) : (
+              <Component {...pageProps} />
+            )}
           </QueryClientProvider>
         </Provider>
       </SessionProvider>

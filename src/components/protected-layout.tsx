@@ -1,4 +1,3 @@
-import { Heading, Text, VStack } from "@chakra-ui/react";
 import { atom, useAtom } from "jotai";
 import { Session } from "next-auth";
 import { useRouter } from "next/router";
@@ -37,14 +36,14 @@ export function ProtectedLayout({
     }, 5000);
 
     return (
-      <VStack minH="100dvh" justifyContent="center" alignItems="center">
-        <Heading size="2xl">
+      <main className="dashboard-access-denied">
+        <h1>
           You are not authorized to access this page!
-        </Heading>
-        <Text fontSize="sm">
+        </h1>
+        <p>
           You will be redirected to the home page in {seconds} seconds.
-        </Text>
-      </VStack>
+        </p>
+      </main>
     );
   }
 

@@ -1,13 +1,19 @@
 import FuzzyText from "@/components/react-bits/fuzzy-text";
-import { Button, VStack } from "@chakra-ui/react";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { useColorTheme } from "@/hooks/use-color-theme";
+import { Button } from "@heroui/react";
 import { useRouter } from "next/router";
 
 export default function Custom500() {
   const router = useRouter();
+  const { theme, toggleTheme } = useColorTheme();
 
   return (
-    <VStack justifyContent="center" alignItems="center" height="100vh">
-      <VStack className="flex flex-col items-center">
+    <main className="guestbook-error-page">
+      <div className="guestbook-error-theme">
+        <ThemeToggle theme={theme} onToggle={toggleTheme} />
+      </div>
+      <div className="guestbook-error-content">
         <FuzzyText
           baseIntensity={0.2}
           hoverIntensity={0.5}
@@ -17,14 +23,15 @@ export default function Custom500() {
           500 Internal Server Error
         </FuzzyText>
         <Button
-          mt={4}
-          onClick={() => router.back()}
-          variant="subtle"
-          fontWeight="bold"
+          className="mt-4"
+          onPress={function handleGoBack() {
+            router.back();
+          }}
+          variant="secondary"
         >
           Back to previous page
         </Button>
-      </VStack>
-    </VStack>
+      </div>
+    </main>
   );
 }

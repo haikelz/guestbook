@@ -1,36 +1,15 @@
 import ErrorReactQuery from "@/components/error-react-query";
 import LoadingReactQuery from "@/components/loading-react-query";
-import { toaster } from "@/components/ui/toaster";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { useColorTheme } from "@/hooks/use-color-theme";
 import { dateFormatter } from "@/lib/helpers/date-formatter";
 import { NEXT_PUBLIC_ADMIN_EMAIL } from "@/lib/utils/constants";
 import { messageSchema } from "@/lib/utils/schemas";
 import { trpc } from "@/lib/utils/trpc";
-import { GuestbookProps } from "@/types";
-import {
-  Box,
-  Button,
-  CloseButton,
-  Container,
-  DialogBackdrop,
-  DialogBody,
-  DialogCloseTrigger,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogPositioner,
-  DialogRoot,
-  DialogTitle,
-  DialogTrigger,
-  Flex,
-  Heading,
-  HStack,
-  Portal,
-  Text,
-  Textarea,
-} from "@chakra-ui/react";
+import type { GuestbookProps } from "@/types";
+import { Alert, Button, Modal, TextArea } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { keepPreviousData, useQueryClient } from "@tanstack/react-query";
-import { atom, useAtom } from "jotai";
+import { keepPreviousData } from "@tanstack/react-query";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { NextSeo } from "next-seo";
 import dynamic from "next/dynamic";
@@ -38,26 +17,25 @@ import Link from "next/link";
 import { createDetector } from "profanity-kit/core";
 import { english } from "profanity-kit/languages/en";
 import { indonesian } from "profanity-kit/languages/id";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { BiChevronRight } from "react-icons/bi";
 import { FaGithub, FaGoogle } from "react-icons/fa";
 
 const AnimatedContent = dynamic(
   () => import("@/components/react-bits/animated-content"),
-  {
-    ssr: false,
-  },
+  { ssr: false },
 );
 
-const isOpenCreateMessageAtom = atom(false);
+type GuestbookMessage = Omit<GuestbookProps, "email">;
 
 export default function Guestbook() {
-  const detector = createDetector({
-    languages: [english, indonesian],
-  });
-
-  const queryClient = useQueryClient();
-
+  const detector = createDetector({ languages: [english, indonesian] });
+  const { theme, toggleTheme } = useColorTheme();
+  const [notice, setNotice] = useState<{
+    message: string;
+    status: "success" | "danger";
+  } | null>(null);
   const { refetch, data, isPending, isError } = trpc.guestbook.get.useQuery(
     { key: "get-guestbook" },
     {
@@ -66,56 +44,35 @@ export default function Guestbook() {
       refetchOnWindowFocus: false,
     },
   );
-
   const { data: session } = useSession();
 
-  // only for admin
   const deleteMessageMutation = trpc.guestbook.delete.useMutation({
-    mutationKey: ["delete-message"],
-    onSuccess: async () =>
-      await queryClient
-        .invalidateQueries({
-          queryKey: ["delete-message"],
-          exact: true,
-        })
-        .then(() => {
-          toaster.create({
-            type: "success",
-            title: "Berhasil menghapus pesan ini!",
-          });
-        }),
-    onError: () => {
-      toaster.create({
-        type: "error",
-        title: "Gagal menghapus pesan ini!",
+    onSuccess: async function onDeleteSuccess() {
+      await refetch();
+      setNotice({ message: "Message deleted.", status: "success" });
+    },
+    onError: function onDeleteError() {
+      setNotice({
+        message: "Could not delete this message. Please try again.",
+        status: "danger",
       });
     },
   });
 
-  async function handleDeleteMessage(id: number, username: string) {
-    await deleteMessageMutation
-      .mutateAsync({
-        id,
-        username,
-      })
-      .then(() => {
-        refetch();
-      });
+  function handleDeleteMessage(id: number, username: string) {
+    deleteMessageMutation.mutate({ id, username });
   }
 
   if (isPending) return <LoadingReactQuery />;
   if (isError) return <ErrorReactQuery />;
 
-  const guestbook: Omit<GuestbookProps, "email">[] = data;
-
-  const profanityFreeGuestbook = guestbook.map((item) => ({
-    ...item,
-    message: detector.filter(item.message),
-  }));
-  const sortedGuestbookByDate = profanityFreeGuestbook.sort(
-    (a, b) =>
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-  );
+  const sortedGuestbook = (data ?? [])
+    .map((item) => ({ ...item, message: detector.filter(item.message) }))
+    .sort(
+      (first, second) =>
+        new Date(second.created_at).getTime() -
+        new Date(first.created_at).getTime(),
+    );
 
   return (
     <>
@@ -123,11 +80,19 @@ export default function Guestbook() {
         title="guestbook.ekel.dev"
         description="Write a message for me and others"
       />
-      <Box w="full" py={4}>
-        {session && session.user.role === "admin" ? (
-          <GoToDashboardAdmin />
-        ) : null}
-        <Container spaceY={5} maxW="3xl">
+      <main className="guestbook-viewport">
+        <div className="guestbook-page">
+          {notice && (
+            <Alert
+              className="guestbook-notice"
+              status={notice.status}
+              role="status"
+            >
+              <Alert.Indicator />
+              <Alert.Content>{notice.message}</Alert.Content>
+            </Alert>
+          )}
+          {session?.user.role === "admin" && <GoToDashboardAdmin />}
           <AnimatedContent
             distance={150}
             direction="horizontal"
@@ -135,211 +100,254 @@ export default function Guestbook() {
             reverse={true}
             ease="power3.out"
           >
-            <Box spaceY={4}>
-              <Box spaceY={2}>
-                <Heading as="h1" fontSize="3xl" w="fit" fontWeight="extrabold">
-                  guestbook.ekel.dev
-                </Heading>
-                <Text>
-                  Write a message for me and others.{" "}
-                  {session ? (
-                    <span
-                      style={{
-                        fontWeight: "bold",
-                        textDecoration: "underline",
-                        cursor: "pointer",
+            <header className="guestbook-header">
+              <div>
+                <p className="guestbook-eyebrow">
+                  A small corner of the internet
+                </p>
+                <h1>guestbook.ekel.dev</h1>
+                <p className="guestbook-intro">
+                  Write a message for me and others.
+                  {session && (
+                    <Button
+                      className="guestbook-sign-out"
+                      size="sm"
+                      variant="tertiary"
+                      onPress={function handleSignOut() {
+                        void signOut();
                       }}
-                      onClick={() => signOut()}
                     >
-                      Sign Out
-                    </span>
-                  ) : null}
-                </Text>
-              </Box>
-              {!session ? (
-                <HStack>
-                  <Button fontWeight="bold" onClick={() => signIn("github")}>
-                    <FaGithub /> Github
-                  </Button>
-                  <Button fontWeight="bold" onClick={() => signIn("google")}>
-                    <FaGoogle /> Google
-                  </Button>
-                </HStack>
-              ) : (
-                <DialogCreateMessage refetch={refetch} />
-              )}
-            </Box>
+                      Sign out
+                    </Button>
+                  )}
+                </p>
+              </div>
+              <div className="guestbook-header-actions">
+                <ThemeToggle theme={theme} onToggle={toggleTheme} />
+                {session ? (
+                  <DialogCreateMessage
+                    onCreated={function handleMessageCreated() {
+                      void refetch();
+                      setNotice({
+                        message: "Your message has been added.",
+                        status: "success",
+                      });
+                    }}
+                    onError={function handleMessageError() {
+                      setNotice({
+                        message:
+                          "Could not add your message. Please try again.",
+                        status: "danger",
+                      });
+                    }}
+                  />
+                ) : (
+                  <div className="guestbook-sign-in-actions">
+                    <Button
+                      variant="secondary"
+                      onPress={function handleGitHubSignIn() {
+                        void signIn("github");
+                      }}
+                    >
+                      <FaGithub aria-hidden="true" />
+                      Continue with GitHub
+                    </Button>
+                    <Button
+                      variant="primary"
+                      onPress={function handleGoogleSignIn() {
+                        void signIn("google");
+                      }}
+                    >
+                      <FaGoogle aria-hidden="true" />
+                      Continue with Google
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </header>
           </AnimatedContent>
+
           <AnimatedContent
             direction="vertical"
             duration={0.8}
             ease="power3.out"
           >
-            <Box
-              spaceY={4}
-              overflowY="scroll"
-              minH="100vh"
-              maxH="100vh"
-              pb={44}
-            >
-              {sortedGuestbookByDate.map((item, index) => (
-                <Box
-                  spaceY={1}
-                  p={2}
-                  border="1px solid"
-                  borderColor="gray.500"
-                  borderRadius="sm"
-                  backgroundColor="gray.950"
-                  key={item.id}
-                >
-                  <Flex
-                    direction={{ base: "column-reverse", sm: "row" }}
-                    w="full"
-                    justifyContent="space-between"
-                  >
-                    <Text fontSize="lg" fontWeight="bold">
-                      {item.message}
-                    </Text>
-                    <Text fontSize="sm" fontWeight="medium">
-                      {dateFormatter.format(new Date(item.created_at))}
-                    </Text>
-                  </Flex>
-                  <Text fontSize="sm">@{item.username}</Text>
-                  {session?.user.email === NEXT_PUBLIC_ADMIN_EMAIL ? (
-                    <HStack>
-                      <button
-                        type="button"
-                        aria-label="delete message"
-                        style={{ cursor: "pointer" }}
-                        onClick={() =>
-                          handleDeleteMessage(item.id, item.username)
-                        }
-                      >
-                        <Text
-                          fontWeight="bold"
-                          textDecoration="underline"
-                          fontSize="14px"
-                        >
-                          Delete
-                        </Text>
-                      </button>
-                    </HStack>
-                  ) : null}
-                </Box>
-              ))}
-            </Box>
+            <section className="guestbook-feed" aria-label="Guestbook messages">
+              <div className="guestbook-feed-heading">
+                <div>
+                  <h2>Recent messages</h2>
+                  <p>A collection of notes from the community.</p>
+                </div>
+                <span className="guestbook-message-count">
+                  {sortedGuestbook.length} messages
+                </span>
+              </div>
+              {sortedGuestbook.length ? (
+                <div className="guestbook-message-list">
+                  {sortedGuestbook.map(function renderMessage(
+                    item: GuestbookMessage,
+                  ) {
+                    return (
+                      <article className="guestbook-message" key={item.id}>
+                        <div className="guestbook-message-topline">
+                          <span className="guestbook-author">
+                            @{item.username}
+                          </span>
+                          <time
+                            dateTime={new Date(item.created_at).toISOString()}
+                          >
+                            {dateFormatter.format(new Date(item.created_at))}
+                          </time>
+                        </div>
+                        <p>{item.message}</p>
+                        {session?.user.email === NEXT_PUBLIC_ADMIN_EMAIL && (
+                          <Button
+                            className="guestbook-delete-message"
+                            size="sm"
+                            variant="danger"
+                            isPending={deleteMessageMutation.isPending}
+                            onPress={function handleDelete() {
+                              void handleDeleteMessage(item.id, item.username);
+                            }}
+                          >
+                            Delete message
+                          </Button>
+                        )}
+                      </article>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="guestbook-empty-state">
+                  <span className="guestbook-empty-mark" aria-hidden="true" />
+                  <h3>No messages yet</h3>
+                  <p>Sign in and leave the first note.</p>
+                </div>
+              )}
+            </section>
           </AnimatedContent>
-        </Container>
-      </Box>
+          <footer className="guestbook-footer">
+            <span>Made for good conversations.</span>
+            <span>guestbook.ekel.dev</span>
+          </footer>
+        </div>
+      </main>
     </>
   );
 }
 
 function GoToDashboardAdmin() {
   return (
-    <Link href="/dashboard/admin">
-      <Button pos="fixed" top={4} right={4}>
-        <Text>Go to Dashboard Admin</Text>
-        <BiChevronRight />
-      </Button>
+    <Link className="guestbook-admin-link" href="/dashboard/admin">
+      Admin dashboard <BiChevronRight aria-hidden="true" />
     </Link>
   );
 }
 
-function DialogCreateMessage({ refetch }: { refetch: () => void }) {
-  const [isOpenCreateMessage, setIsOpenCreateMessage] = useAtom(
-    isOpenCreateMessageAtom,
-  );
-
+function DialogCreateMessage({
+  onCreated,
+  onError,
+}: {
+  onCreated: () => void;
+  onError: () => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
-    getValues,
-  } = useForm({
+  } = useForm<{ message: string }>({
     defaultValues: { message: "" },
     resolver: zodResolver(messageSchema),
   });
+  const { data: session } = useSession();
+  const createMessageMutation = trpc.guestbook.post.useMutation();
 
-  async function onSubmit() {
+  async function handleCreateMessage(values: { message: string }) {
     const email = session?.user.email;
-    const username =
-      session?.user.name ?? email?.split("@")[0];
-
+    const username = session?.user.name?.trim() || email?.split("@")[0];
     if (!email || !username) return;
 
-    await createNewMessageMutation
-      .mutateAsync({
+    try {
+      await createMessageMutation.mutateAsync({
         email,
         username,
-        message: getValues("message"),
-      })
-      .then(() => {
-        refetch();
-        setValue("message", "");
+        message: values.message,
       });
-
-    setIsOpenCreateMessage(false);
+      setValue("message", "");
+      setIsOpen(false);
+      onCreated();
+    } catch {
+      onError();
+    }
   }
 
-  const createNewMessageMutation = trpc.guestbook.post.useMutation({
-    mutationKey: ["create-new-message"],
-  });
-
-  const { data: session } = useSession();
-
   return (
-    <DialogRoot
-      placement="center"
-      size={{ base: "sm", sm: "lg" }}
-      preventScroll
-      lazyMount
-      open={isOpenCreateMessage}
-      onOpenChange={(details) => setIsOpenCreateMessage(details.open)}
-    >
-      <DialogBackdrop />
-      <DialogTrigger asChild>
-        <Button onClick={() => setIsOpenCreateMessage(true)}>
-          Create New Message
-        </Button>
-      </DialogTrigger>
-      <Portal>
-        <DialogPositioner>
-          <DialogContent bg="gray.900">
-            <DialogCloseTrigger color="white" _hover={{ bg: "none" }} asChild>
-              <CloseButton size="2xs" />
-            </DialogCloseTrigger>
-            <DialogHeader>
-              <DialogTitle>Create New Message</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <DialogBody>
-                <Textarea
-                  {...register("message", { required: true })}
-                  placeholder="Your Message...."
-                  borderColor="gray.500"
-                  h="80px"
-                  _placeholder={{ color: "gray.500" }}
+    <>
+      <Button
+        variant="primary"
+        onPress={function handleOpenCreateMessage() {
+          setIsOpen(true);
+        }}
+      >
+        Write a message
+      </Button>
+      <Modal.Backdrop isOpen={isOpen} onOpenChange={setIsOpen}>
+        <Modal.Container>
+          <Modal.Dialog className="guestbook-create-dialog">
+            <Modal.CloseTrigger />
+            <Modal.Header>
+              <Modal.Heading>Create a message</Modal.Heading>
+              <p className="guestbook-dialog-description">
+                Share a short note with the guestbook community.
+              </p>
+            </Modal.Header>
+            <form onSubmit={handleSubmit(handleCreateMessage)}>
+              <Modal.Body>
+                <TextArea
+                  {...register("message")}
+                  aria-describedby={
+                    errors.message ? "message-error" : undefined
+                  }
+                  aria-label="Your message"
+                  aria-invalid={Boolean(errors.message)}
+                  autoFocus
+                  className="guestbook-message-input"
+                  maxLength={500}
+                  placeholder="Write your message…"
                   required
+                  rows={5}
                 />
-                <Text>{errors.message ? errors.message.message : null}</Text>
-              </DialogBody>
-              <DialogFooter>
+                {errors.message && (
+                  <p className="guestbook-field-error" id="message-error">
+                    {errors.message.message}
+                  </p>
+                )}
+              </Modal.Body>
+              <Modal.Footer>
                 <Button
-                  type="submit"
-                  aria-label="submit"
-                  variant="surface"
-                  fontWeight="bold"
+                  variant="secondary"
+                  slot="close"
+                  onPress={function handleCancel() {
+                    setIsOpen(false);
+                  }}
                 >
-                  Submit
+                  Cancel
                 </Button>
-              </DialogFooter>
+                <Button
+                  aria-label="Submit message"
+                  isPending={createMessageMutation.isPending}
+                  type="submit"
+                  variant="primary"
+                >
+                  Publish message
+                </Button>
+              </Modal.Footer>
             </form>
-            <DialogCloseTrigger color="white" _hover={{ bg: "none" }} />
-          </DialogContent>
-        </DialogPositioner>
-      </Portal>
-    </DialogRoot>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
+    </>
   );
 }
