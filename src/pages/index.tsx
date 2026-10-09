@@ -1,9 +1,6 @@
-import ErrorReactQuery from "@/components/error-react-query";
-import LoadingReactQuery from "@/components/loading-react-query";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useColorTheme } from "@/hooks/use-color-theme";
 import { dateFormatter } from "@/lib/helpers/date-formatter";
-import { NEXT_PUBLIC_ADMIN_EMAIL } from "@/lib/utils/constants";
 import { messageSchema } from "@/lib/utils/schemas";
 import { trpc } from "@/lib/utils/trpc";
 import type { GuestbookProps } from "@/types";
@@ -12,20 +9,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { keepPreviousData } from "@tanstack/react-query";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { NextSeo } from "next-seo";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { createDetector } from "profanity-kit/core";
 import { english } from "profanity-kit/languages/en";
 import { indonesian } from "profanity-kit/languages/id";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { BiChevronRight } from "react-icons/bi";
+import { LuArrowUpRight, LuMessageSquare, LuPenLine } from "react-icons/lu";
 import { FaGithub, FaGoogle } from "react-icons/fa";
-
-const AnimatedContent = dynamic(
-  () => import("@/components/react-bits/animated-content"),
-  { ssr: false },
-);
 
 type GuestbookMessage = Omit<GuestbookProps, "email">;
 
@@ -44,7 +35,7 @@ export default function Guestbook() {
       refetchOnWindowFocus: false,
     },
   );
-  const { data: session } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
 
   const deleteMessageMutation = trpc.guestbook.delete.useMutation({
     onSuccess: async function onDeleteSuccess() {
@@ -60,11 +51,8 @@ export default function Guestbook() {
   });
 
   function handleDeleteMessage(id: number, username: string) {
-    deleteMessageMutation.mutate({ id, username });
+    return deleteMessageMutation.mutateAsync({ id, username });
   }
-
-  if (isPending) return <LoadingReactQuery />;
-  if (isError) return <ErrorReactQuery />;
 
   const sortedGuestbook = (data ?? [])
     .map((item) => ({ ...item, message: detector.filter(item.message) }))
@@ -80,8 +68,19 @@ export default function Guestbook() {
         title="guestbook.ekel.dev"
         description="Write a message for me and others"
       />
-      <main className="guestbook-viewport">
+      <div className="guestbook-viewport">
         <div className="guestbook-page">
+          <header className="site-topbar">
+            <Link href="/" className="site-brand">
+              <span className="site-brand-mark"><LuMessageSquare aria-hidden="true" /></span>
+              guestbook<span className="brand-domain">.ekel.dev</span>
+            </Link>
+            <nav className="site-actions" aria-label="Account and appearance">
+              {session?.user.role === "admin" && <GoToDashboardAdmin />}
+              <ThemeToggle theme={theme} onToggle={toggleTheme} />
+              {session && <Button size="sm" variant="tertiary" onPress={function handleSignOut() { void signOut(); }}>Sign out</Button>}
+            </nav>
+          </header>
           {notice && (
             <Alert
               className="guestbook-notice"
@@ -92,39 +91,19 @@ export default function Guestbook() {
               <Alert.Content>{notice.message}</Alert.Content>
             </Alert>
           )}
-          {session?.user.role === "admin" && <GoToDashboardAdmin />}
-          <AnimatedContent
-            distance={150}
-            direction="horizontal"
-            duration={0.8}
-            reverse={true}
-            ease="power3.out"
-          >
+          <main className="guestbook-layout">
             <header className="guestbook-header">
-              <div>
-                <p className="guestbook-eyebrow">
-                  A small corner of the internet
-                </p>
-                <h1>guestbook.ekel.dev</h1>
+              <LuMessageSquare className="welcome-icon" aria-hidden="true" />
+              <div className="guestbook-welcome-copy">
+                <h1>A little hello.<br />A lasting note.</h1>
                 <p className="guestbook-intro">
                   Write a message for me and others.
-                  {session && (
-                    <Button
-                      className="guestbook-sign-out"
-                      size="sm"
-                      variant="tertiary"
-                      onPress={function handleSignOut() {
-                        void signOut();
-                      }}
-                    >
-                      Sign out
-                    </Button>
-                  )}
+                  <br />Glad you stopped by.
                 </p>
               </div>
               <div className="guestbook-header-actions">
-                <ThemeToggle theme={theme} onToggle={toggleTheme} />
-                {session ? (
+                <p className="guestbook-auth-caption">{session ? `Signed in as ${session.user.name || session.user.email}` : "Sign in to leave your mark."}</p>
+                  {sessionStatus === "loading" ? <p role="status">Checking sign-in…</p> : session ? (
                   <DialogCreateMessage
                     onCreated={function handleMessageCreated() {
                       void refetch();
@@ -153,7 +132,7 @@ export default function Guestbook() {
                       Continue with GitHub
                     </Button>
                     <Button
-                      variant="primary"
+                      variant="secondary"
                       onPress={function handleGoogleSignIn() {
                         void signIn("google");
                       }}
@@ -164,31 +143,27 @@ export default function Guestbook() {
                   </div>
                 )}
               </div>
+              <p className="guestbook-welcome-footer">A small corner for good conversations.</p>
             </header>
-          </AnimatedContent>
-
-          <AnimatedContent
-            direction="vertical"
-            duration={0.8}
-            ease="power3.out"
-          >
             <section className="guestbook-feed" aria-label="Guestbook messages">
               <div className="guestbook-feed-heading">
                 <div>
-                  <h2>Recent messages</h2>
-                  <p>A collection of notes from the community.</p>
+                  <h2>The conversation</h2>
+                  <p>Notes from everyone who stopped by.</p>
                 </div>
                 <span className="guestbook-message-count">
-                  {sortedGuestbook.length} messages
+                  {isPending || isError ? "" : `${sortedGuestbook.length} messages`}
                 </span>
               </div>
-              {sortedGuestbook.length ? (
+              {isPending ? <div className="guestbook-state" role="status">Loading messages…</div> : isError ? <div className="guestbook-state"><h3>Messages couldn't load</h3><p role="alert">Please try again in a moment.</p><Button variant="secondary" onPress={function handleRetry() { void refetch(); }}>Try again</Button></div> : sortedGuestbook.length ? (
                 <div className="guestbook-message-list">
                   {sortedGuestbook.map(function renderMessage(
                     item: GuestbookMessage,
                   ) {
                     return (
                       <article className="guestbook-message" key={item.id}>
+                        <span className="guestbook-avatar" aria-hidden="true">{item.username.slice(0, 1).toUpperCase()}</span>
+                        <div className="guestbook-message-content">
                         <div className="guestbook-message-topline">
                           <span className="guestbook-author">
                             @{item.username}
@@ -200,38 +175,39 @@ export default function Guestbook() {
                           </time>
                         </div>
                         <p>{item.message}</p>
-                        {session?.user.email === NEXT_PUBLIC_ADMIN_EMAIL && (
-                          <Button
-                            className="guestbook-delete-message"
-                            size="sm"
-                            variant="danger"
+                        {session?.user.role === "admin" && (
+                          <ConfirmAction
+                            triggerLabel="Delete message"
+                            triggerVariant="tertiary"
+                            title="Delete this message?"
+                            description="This permanently removes the message from the public guestbook."
+                            actionLabel="Delete message"
                             isPending={deleteMessageMutation.isPending}
-                            onPress={function handleDelete() {
-                              void handleDeleteMessage(item.id, item.username);
+                            onConfirm={function handleDelete() {
+                              return handleDeleteMessage(item.id, item.username);
                             }}
-                          >
-                            Delete message
-                          </Button>
+                          />
                         )}
+                        </div>
                       </article>
                     );
                   })}
                 </div>
               ) : (
                 <div className="guestbook-empty-state">
-                  <span className="guestbook-empty-mark" aria-hidden="true" />
+                  <LuMessageSquare className="empty-icon" aria-hidden="true" />
                   <h3>No messages yet</h3>
                   <p>Sign in and leave the first note.</p>
                 </div>
               )}
             </section>
-          </AnimatedContent>
+          </main>
           <footer className="guestbook-footer">
-            <span>Made for good conversations.</span>
             <span>guestbook.ekel.dev</span>
+            <span>Thanks for being here.</span>
           </footer>
         </div>
-      </main>
+      </div>
     </>
   );
 }
@@ -239,7 +215,7 @@ export default function Guestbook() {
 function GoToDashboardAdmin() {
   return (
     <Link className="guestbook-admin-link" href="/dashboard/admin">
-      Admin dashboard <BiChevronRight aria-hidden="true" />
+      Dashboard <LuArrowUpRight aria-hidden="true" />
     </Link>
   );
 }
@@ -291,6 +267,7 @@ function DialogCreateMessage({
           setIsOpen(true);
         }}
       >
+        <LuPenLine aria-hidden="true" />
         Write a message
       </Button>
       <Modal.Backdrop isOpen={isOpen} onOpenChange={setIsOpen}>
@@ -351,3 +328,4 @@ function DialogCreateMessage({
     </>
   );
 }
+import { ConfirmAction } from "@/components/confirm-action";

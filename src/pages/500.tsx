@@ -1,4 +1,3 @@
-import FuzzyText from "@/components/react-bits/fuzzy-text";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useColorTheme } from "@/hooks/use-color-theme";
 import { Button } from "@heroui/react";
@@ -14,22 +13,17 @@ export default function Custom500() {
         <ThemeToggle theme={theme} onToggle={toggleTheme} />
       </div>
       <div className="guestbook-error-content">
-        <FuzzyText
-          baseIntensity={0.2}
-          hoverIntensity={0.5}
-          enableHover={true}
-          fontSize="2rem"
-        >
-          500 Internal Server Error
-        </FuzzyText>
+        <div className="error-code">500</div>
+        <h1>Something went wrong.</h1>
+        <p>We couldn't load this page. Return to the guestbook and try again.</p>
         <Button
           className="mt-4"
           onPress={function handleGoBack() {
-            router.back();
+            void router.push("/");
           }}
           variant="secondary"
         >
-          Back to previous page
+          Return to guestbook
         </Button>
       </div>
     </main>

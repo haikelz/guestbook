@@ -41,3 +41,7 @@ next-env.d.ts
 
 # graft's local graph cache — regenerable, not committed (run `graft build`).
 /graft/
+
+# Local browser evidence and tool logs
+/.playwright-cli/
+/.impeccable/review/

@@ -1,0 +1,536 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-09T07:57:53.986142+00:00",
+  "title": "Design System: Guestbook — Open House",
+  "extensions": {
+    "colorMeta": {
+      "page-light": {
+        "role": "neutral",
+        "displayName": "Page Light",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.38 0 0)",
+          "oklch(0.49 0 0)",
+          "oklch(0.61 0 0)",
+          "oklch(0.72 0 0)",
+          "oklch(0.84 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "surface-light": {
+        "role": "neutral",
+        "displayName": "Surface Light",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.38 0 0)",
+          "oklch(0.49 0 0)",
+          "oklch(0.61 0 0)",
+          "oklch(0.72 0 0)",
+          "oklch(0.84 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "raised-light": {
+        "role": "neutral",
+        "displayName": "Raised Light",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.38 0 0)",
+          "oklch(0.49 0 0)",
+          "oklch(0.61 0 0)",
+          "oklch(0.72 0 0)",
+          "oklch(0.84 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "ink-light": {
+        "role": "neutral",
+        "displayName": "Ink Light",
+        "tonalRamp": [
+          "oklch(0.15 0.006 285)",
+          "oklch(0.26 0.006 285)",
+          "oklch(0.38 0.006 285)",
+          "oklch(0.49 0.006 285)",
+          "oklch(0.61 0.006 285)",
+          "oklch(0.72 0.006 285)",
+          "oklch(0.84 0.006 285)",
+          "oklch(0.95 0.006 285)"
+        ]
+      },
+      "muted-light": {
+        "role": "neutral",
+        "displayName": "Muted Light",
+        "tonalRamp": [
+          "oklch(0.15 0.008 285)",
+          "oklch(0.26 0.008 285)",
+          "oklch(0.38 0.008 285)",
+          "oklch(0.49 0.008 285)",
+          "oklch(0.61 0.008 285)",
+          "oklch(0.72 0.008 285)",
+          "oklch(0.84 0.008 285)",
+          "oklch(0.95 0.008 285)"
+        ]
+      },
+      "divider-light": {
+        "role": "neutral",
+        "displayName": "Divider Light",
+        "tonalRamp": [
+          "oklch(0.15 0.004 285)",
+          "oklch(0.26 0.004 285)",
+          "oklch(0.38 0.004 285)",
+          "oklch(0.49 0.004 285)",
+          "oklch(0.61 0.004 285)",
+          "oklch(0.72 0.004 285)",
+          "oklch(0.84 0.004 285)",
+          "oklch(0.95 0.004 285)"
+        ]
+      },
+      "accent-light": {
+        "role": "primary",
+        "displayName": "Accent Light",
+        "tonalRamp": [
+          "oklch(0.15 0.245 262.9)",
+          "oklch(0.26 0.245 262.9)",
+          "oklch(0.38 0.245 262.9)",
+          "oklch(0.49 0.245 262.9)",
+          "oklch(0.61 0.245 262.9)",
+          "oklch(0.72 0.245 262.9)",
+          "oklch(0.84 0.245 262.9)",
+          "oklch(0.95 0.245 262.9)"
+        ]
+      },
+      "accent-soft-light": {
+        "role": "primary",
+        "displayName": "Accent Soft Light",
+        "tonalRamp": [
+          "oklch(0.15 0.025 262)",
+          "oklch(0.26 0.025 262)",
+          "oklch(0.38 0.025 262)",
+          "oklch(0.49 0.025 262)",
+          "oklch(0.61 0.025 262)",
+          "oklch(0.72 0.025 262)",
+          "oklch(0.84 0.025 262)",
+          "oklch(0.95 0.025 262)"
+        ]
+      },
+      "danger-light": {
+        "role": "neutral",
+        "displayName": "Danger Light",
+        "tonalRamp": [
+          "oklch(0.15 0.22 25)",
+          "oklch(0.26 0.22 25)",
+          "oklch(0.38 0.22 25)",
+          "oklch(0.49 0.22 25)",
+          "oklch(0.61 0.22 25)",
+          "oklch(0.72 0.22 25)",
+          "oklch(0.84 0.22 25)",
+          "oklch(0.95 0.22 25)"
+        ]
+      },
+      "welcome-light": {
+        "role": "primary",
+        "displayName": "Welcome Light",
+        "tonalRamp": [
+          "oklch(0.15 0.215 263)",
+          "oklch(0.26 0.215 263)",
+          "oklch(0.38 0.215 263)",
+          "oklch(0.49 0.215 263)",
+          "oklch(0.61 0.215 263)",
+          "oklch(0.72 0.215 263)",
+          "oklch(0.84 0.215 263)",
+          "oklch(0.95 0.215 263)"
+        ]
+      },
+      "welcome-ink-light": {
+        "role": "primary",
+        "displayName": "Welcome Ink Light",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.38 0 0)",
+          "oklch(0.49 0 0)",
+          "oklch(0.61 0 0)",
+          "oklch(0.72 0 0)",
+          "oklch(0.84 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "accent-foreground-light": {
+        "role": "primary",
+        "displayName": "Accent Foreground Light",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.38 0 0)",
+          "oklch(0.49 0 0)",
+          "oklch(0.61 0 0)",
+          "oklch(0.72 0 0)",
+          "oklch(0.84 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "danger-foreground-light": {
+        "role": "neutral",
+        "displayName": "Danger Foreground Light",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.38 0 0)",
+          "oklch(0.49 0 0)",
+          "oklch(0.61 0 0)",
+          "oklch(0.72 0 0)",
+          "oklch(0.84 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "page-dark": {
+        "role": "neutral",
+        "displayName": "Page Dark",
+        "tonalRamp": [
+          "oklch(0.15 0.004 285)",
+          "oklch(0.26 0.004 285)",
+          "oklch(0.38 0.004 285)",
+          "oklch(0.49 0.004 285)",
+          "oklch(0.61 0.004 285)",
+          "oklch(0.72 0.004 285)",
+          "oklch(0.84 0.004 285)",
+          "oklch(0.95 0.004 285)"
+        ]
+      },
+      "surface-dark": {
+        "role": "neutral",
+        "displayName": "Surface Dark",
+        "tonalRamp": [
+          "oklch(0.15 0.004 285)",
+          "oklch(0.26 0.004 285)",
+          "oklch(0.38 0.004 285)",
+          "oklch(0.49 0.004 285)",
+          "oklch(0.61 0.004 285)",
+          "oklch(0.72 0.004 285)",
+          "oklch(0.84 0.004 285)",
+          "oklch(0.95 0.004 285)"
+        ]
+      },
+      "raised-dark": {
+        "role": "neutral",
+        "displayName": "Raised Dark",
+        "tonalRamp": [
+          "oklch(0.15 0.005 285)",
+          "oklch(0.26 0.005 285)",
+          "oklch(0.38 0.005 285)",
+          "oklch(0.49 0.005 285)",
+          "oklch(0.61 0.005 285)",
+          "oklch(0.72 0.005 285)",
+          "oklch(0.84 0.005 285)",
+          "oklch(0.95 0.005 285)"
+        ]
+      },
+      "ink-dark": {
+        "role": "neutral",
+        "displayName": "Ink Dark",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.38 0 0)",
+          "oklch(0.49 0 0)",
+          "oklch(0.61 0 0)",
+          "oklch(0.72 0 0)",
+          "oklch(0.84 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "muted-dark": {
+        "role": "neutral",
+        "displayName": "Muted Dark",
+        "tonalRamp": [
+          "oklch(0.15 0.008 285)",
+          "oklch(0.26 0.008 285)",
+          "oklch(0.38 0.008 285)",
+          "oklch(0.49 0.008 285)",
+          "oklch(0.61 0.008 285)",
+          "oklch(0.72 0.008 285)",
+          "oklch(0.84 0.008 285)",
+          "oklch(0.95 0.008 285)"
+        ]
+      },
+      "divider-dark": {
+        "role": "neutral",
+        "displayName": "Divider Dark",
+        "tonalRamp": [
+          "oklch(0.15 0.006 285)",
+          "oklch(0.26 0.006 285)",
+          "oklch(0.38 0.006 285)",
+          "oklch(0.49 0.006 285)",
+          "oklch(0.61 0.006 285)",
+          "oklch(0.72 0.006 285)",
+          "oklch(0.84 0.006 285)",
+          "oklch(0.95 0.006 285)"
+        ]
+      },
+      "accent-dark": {
+        "role": "primary",
+        "displayName": "Accent Dark",
+        "tonalRamp": [
+          "oklch(0.15 0.165 254.6)",
+          "oklch(0.26 0.165 254.6)",
+          "oklch(0.38 0.165 254.6)",
+          "oklch(0.49 0.165 254.6)",
+          "oklch(0.61 0.165 254.6)",
+          "oklch(0.72 0.165 254.6)",
+          "oklch(0.84 0.165 254.6)",
+          "oklch(0.95 0.165 254.6)"
+        ]
+      },
+      "accent-soft-dark": {
+        "role": "primary",
+        "displayName": "Accent Soft Dark",
+        "tonalRamp": [
+          "oklch(0.15 0.065 263)",
+          "oklch(0.26 0.065 263)",
+          "oklch(0.38 0.065 263)",
+          "oklch(0.49 0.065 263)",
+          "oklch(0.61 0.065 263)",
+          "oklch(0.72 0.065 263)",
+          "oklch(0.84 0.065 263)",
+          "oklch(0.95 0.065 263)"
+        ]
+      },
+      "danger-dark": {
+        "role": "neutral",
+        "displayName": "Danger Dark",
+        "tonalRamp": [
+          "oklch(0.15 0.19 25)",
+          "oklch(0.26 0.19 25)",
+          "oklch(0.38 0.19 25)",
+          "oklch(0.49 0.19 25)",
+          "oklch(0.61 0.19 25)",
+          "oklch(0.72 0.19 25)",
+          "oklch(0.84 0.19 25)",
+          "oklch(0.95 0.19 25)"
+        ]
+      },
+      "welcome-dark": {
+        "role": "primary",
+        "displayName": "Welcome Dark",
+        "tonalRamp": [
+          "oklch(0.15 0.15 263)",
+          "oklch(0.26 0.15 263)",
+          "oklch(0.38 0.15 263)",
+          "oklch(0.49 0.15 263)",
+          "oklch(0.61 0.15 263)",
+          "oklch(0.72 0.15 263)",
+          "oklch(0.84 0.15 263)",
+          "oklch(0.95 0.15 263)"
+        ]
+      },
+      "accent-foreground-dark": {
+        "role": "primary",
+        "displayName": "Accent Foreground Dark",
+        "tonalRamp": [
+          "oklch(0.15 0.045 263)",
+          "oklch(0.26 0.045 263)",
+          "oklch(0.38 0.045 263)",
+          "oklch(0.49 0.045 263)",
+          "oklch(0.61 0.045 263)",
+          "oklch(0.72 0.045 263)",
+          "oklch(0.84 0.045 263)",
+          "oklch(0.95 0.045 263)"
+        ]
+      },
+      "danger-foreground-dark": {
+        "role": "neutral",
+        "displayName": "Danger Foreground Dark",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.38 0 0)",
+          "oklch(0.49 0 0)",
+          "oklch(0.61 0 0)",
+          "oklch(0.72 0 0)",
+          "oklch(0.84 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "welcome-ink-dark": {
+        "role": "primary",
+        "displayName": "Welcome Ink Dark",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.38 0 0)",
+          "oklch(0.49 0 0)",
+          "oklch(0.61 0 0)",
+          "oklch(0.72 0 0)",
+          "oklch(0.84 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Welcome heading."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Dashboard heading."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Feed heading."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Default reading text."
+      },
+      "author": {
+        "displayName": "Author",
+        "purpose": "Message author."
+      },
+      "metadata": {
+        "displayName": "Metadata",
+        "purpose": "Dates and supporting values."
+      }
+    },
+    "shadows": [
+      {
+        "name": "table-row",
+        "value": "none",
+        "purpose": "Custom table rows remain flat; field and overlay shadows belong to HeroUI."
+      }
+    ],
+    "motion": [
+      {
+        "name": "reduced-motion-duration",
+        "value": "0.01ms",
+        "purpose": "Global animation and transition duration under reduced motion."
+      },
+      {
+        "name": "button-background",
+        "value": "100ms",
+        "purpose": "Installed HeroUI button background transition."
+      },
+      {
+        "name": "button-press",
+        "value": "250ms",
+        "purpose": "Installed HeroUI transform transition."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact-desktop",
+        "value": "1000px"
+      },
+      {
+        "name": "stacked-records",
+        "value": "760px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary button",
+      "kind": "button",
+      "description": "HeroUI primary action; inherits live semantic theme tokens.",
+      "html": "<button class=\"ds-button\">Save changes</button>",
+      "css": ".ds-button {display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border:0;border-radius:var(--radius-3xl,24px);font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:background-color 100ms ease-out,transform 250ms ease;} .ds-button:focus-visible {outline:2px solid var(--gb-accent);outline-offset:4px;} .ds-button:active {transform:scale(.97);} .ds-button:disabled {opacity:.5;cursor:default;} @media(min-width:768px){.ds-button{height:36px;}} @media(prefers-reduced-motion:reduce){.ds-button{transition:none;}} .ds-button {background:var(--accent);color:var(--accent-foreground);} .ds-button:hover {background:var(--accent-hover);}",
+      "refersTo": "button-primary-light"
+    },
+    {
+      "name": "Secondary button",
+      "kind": "button",
+      "description": "HeroUI secondary action; inherits live semantic theme tokens.",
+      "html": "<button class=\"ds-button\">Cancel</button>",
+      "css": ".ds-button {display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border:0;border-radius:var(--radius-3xl,24px);font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:background-color 100ms ease-out,transform 250ms ease;} .ds-button:focus-visible {outline:2px solid var(--gb-accent);outline-offset:4px;} .ds-button:active {transform:scale(.97);} .ds-button:disabled {opacity:.5;cursor:default;} @media(min-width:768px){.ds-button{height:36px;}} @media(prefers-reduced-motion:reduce){.ds-button{transition:none;}} .ds-button {background:var(--default);color:var(--accent-soft-foreground);} .ds-button:hover {background:var(--default-hover);}"
+    },
+    {
+      "name": "Tertiary button",
+      "kind": "button",
+      "description": "HeroUI tertiary action; inherits live semantic theme tokens.",
+      "html": "<button class=\"ds-button\">Sign out</button>",
+      "css": ".ds-button {display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border:0;border-radius:var(--radius-3xl,24px);font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:background-color 100ms ease-out,transform 250ms ease;} .ds-button:focus-visible {outline:2px solid var(--gb-accent);outline-offset:4px;} .ds-button:active {transform:scale(.97);} .ds-button:disabled {opacity:.5;cursor:default;} @media(min-width:768px){.ds-button{height:36px;}} @media(prefers-reduced-motion:reduce){.ds-button{transition:none;}} .ds-button {background:var(--default);color:var(--gb-ink);} .ds-button:hover {background:var(--default-hover);}"
+    },
+    {
+      "name": "Danger button",
+      "kind": "button",
+      "description": "HeroUI danger action; inherits live semantic theme tokens.",
+      "html": "<button class=\"ds-button\">Delete all messages</button>",
+      "css": ".ds-button {display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border:0;border-radius:var(--radius-3xl,24px);font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:background-color 100ms ease-out,transform 250ms ease;} .ds-button:focus-visible {outline:2px solid var(--gb-accent);outline-offset:4px;} .ds-button:active {transform:scale(.97);} .ds-button:disabled {opacity:.5;cursor:default;} @media(min-width:768px){.ds-button{height:36px;}} @media(prefers-reduced-motion:reduce){.ds-button{transition:none;}} .ds-button {background:var(--danger);color:var(--danger-foreground);} .ds-button:hover {background:var(--danger-hover);}"
+    },
+    {
+      "name": "Danger soft button",
+      "kind": "button",
+      "description": "HeroUI danger soft action; inherits live semantic theme tokens.",
+      "html": "<button class=\"ds-button\">Delete all messages</button>",
+      "css": ".ds-button {display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border:0;border-radius:var(--radius-3xl,24px);font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:background-color 100ms ease-out,transform 250ms ease;} .ds-button:focus-visible {outline:2px solid var(--gb-accent);outline-offset:4px;} .ds-button:active {transform:scale(.97);} .ds-button:disabled {opacity:.5;cursor:default;} @media(min-width:768px){.ds-button{height:36px;}} @media(prefers-reduced-motion:reduce){.ds-button{transition:none;}} .ds-button {background:var(--danger-soft);color:var(--danger-soft-foreground);} .ds-button:hover {background:var(--danger-soft-hover);}"
+    },
+    {
+      "name": "Search field",
+      "kind": "input",
+      "refersTo": "input-light",
+      "description": "Labeled HeroUI search field for moderation.",
+      "html": "<label class=\"ds-field\">Search messages<input class=\"ds-input\" type=\"search\" placeholder=\"Search messages or people\"></label>",
+      "css": ".ds-field{display:flex;flex-direction:column;gap:8px;font:inherit;color:var(--gb-ink);} .ds-input{padding:8px 12px;border:1px solid var(--field-border);border-radius:var(--radius-field,var(--radius));background:var(--field-background);color:var(--field-foreground);font:inherit;box-shadow:var(--shadow-field);transition:background-color 150ms ease,border-color 150ms ease;} .ds-input::placeholder{color:var(--field-placeholder);} .ds-input:hover{background:var(--field-background-hover,var(--field-background));border-color:var(--field-border-hover,var(--field-border));} .ds-input:focus-visible{outline:2px solid var(--gb-accent);outline-offset:4px;} @media(prefers-reduced-motion:reduce){.ds-input{transition:none;}}"
+    },
+    {
+      "name": "Wordmark navigation",
+      "kind": "nav",
+      "description": "Shared compact identity and return link.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Guestbook\"><a class=\"ds-brand\" href=\"/\">guestbook<span>.ekel.dev</span></a><a class=\"ds-link\" href=\"/\">View guestbook</a></nav>",
+      "css": ".ds-nav{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:100px;border-bottom:1px solid var(--gb-divider);} .ds-brand{font-size:16px;font-weight:650;letter-spacing:-.025em;color:var(--gb-ink);text-decoration:none;} .ds-brand span{font-weight:450;color:var(--gb-muted);} .ds-link{font-size:13px;font-weight:550;color:var(--gb-muted);text-decoration:none;} .ds-link:hover{color:var(--gb-accent);} .ds-nav a:focus-visible{outline:2px solid var(--gb-accent);outline-offset:4px;}"
+    },
+    {
+      "name": "Welcome panel",
+      "kind": "card",
+      "refersTo": "welcome-panel-light",
+      "description": "Signature blue invitation container.",
+      "html": "<section class=\"ds-welcome\"><h2>Leave a little hello.</h2><p>A note, a thought, or a simple hello.</p><button class=\"ds-welcome-action\">Write a message</button></section>",
+      "css": ".ds-welcome{padding:36px;border-radius:16px;background:var(--gb-welcome);color:var(--gb-welcome-ink);font-family:inherit;} .ds-welcome h2{margin:0;font-size:clamp(32px,3.4vw,44px);line-height:1.14;letter-spacing:-.035em;font-weight:600;} .ds-welcome p{margin:20px 0 42px;line-height:1.75;color:color-mix(in oklch,var(--gb-welcome-ink) 85%,var(--gb-welcome));} .ds-welcome-action{width:100%;padding:8px 16px;border:0;border-radius:9px;background:var(--gb-welcome-ink);color:var(--gb-welcome);font:inherit;cursor:pointer;} .ds-welcome-action:hover{background:color-mix(in oklch,white 90%,var(--gb-welcome));} .ds-welcome-action:focus-visible{outline:2px solid var(--gb-welcome-ink);outline-offset:4px;} .ds-welcome-action:active{transform:scale(.97);}"
+    },
+    {
+      "name": "Initials avatar",
+      "kind": "custom",
+      "refersTo": "avatar-light",
+      "description": "Author identity beside unboxed message records.",
+      "html": "<span class=\"ds-avatar\" aria-label=\"Author initials\">AB</span>",
+      "css": ".ds-avatar{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;background:var(--gb-accent-soft);color:var(--gb-accent);font-size:14px;font-weight:600;}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Open House",
+    "overview": "Open House makes personal conversation feel welcoming and moderation feel clear. Blue provides a recognizable point of arrival; neutral surfaces carry reading, searching, and decisions. The self-hosted Geist family and familiar HeroUI v3 controls connect the public guestbook and administrator workspace.\n\nDensity follows the task: generous message spacing supports reading, while aligned rows and compact metadata support moderation. Theme changes preserve these relationships through semantic CSS variables. The implemented identity uses typography, tone, and borders without decorative imagery.",
+    "keyCharacteristics": [
+      "Blue welcome surface and neutral reading areas.",
+      "Flat, separated content with restrained rounded containers.",
+      "One type family with clear headings and quiet metadata.",
+      "Responsive records and explicit destructive actions."
+    ],
+    "rules": [
+      {
+        "name": "The Semantic Theme Rule",
+        "body": "Use the shared semantic variables so both themes preserve the same hierarchy.",
+        "section": "colors"
+      },
+      {
+        "name": "The Reading Surface Rule",
+        "body": "Separate messages with spacing and dividers; reserve bounded surfaces for the welcome panel, tables, fields, and overlays.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use the semantic light/dark colors from src/styles/globals.css.",
+      "Do use HeroUI v3 controls and preserve their accessible labels, focus, and pending states.",
+      "Do keep author names, dates, and message content readable when text wraps.",
+      "Do describe exactly which messages a destructive action removes."
+    ],
+    "donts": [
+      "Don't restore the retired animated background or nested summary-card composition.",
+      "Don't fabricate published messages, contributor activity, or chart data.",
+      "Don't imply that deleting contributor messages deletes their authentication account.",
+      "Don't use color as the only indication of an error or destructive action."
+    ]
+  }
+}

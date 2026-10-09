@@ -1,4 +1,3 @@
-import FuzzyText from "@/components/react-bits/fuzzy-text";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useColorTheme } from "@/hooks/use-color-theme";
 import { Button } from "@heroui/react";
@@ -14,22 +13,17 @@ export default function Custom404() {
         <ThemeToggle theme={theme} onToggle={toggleTheme} />
       </div>
       <div className="guestbook-error-content">
-        <FuzzyText
-          baseIntensity={0.2}
-          hoverIntensity={0.5}
-          enableHover={true}
-          fontSize="2rem"
-        >
-          404 Not Found
-        </FuzzyText>
+        <div className="error-code">404</div>
+        <h1>This page isn't here.</h1>
+        <p>The link may have changed. Head back to the guestbook to join the conversation.</p>
         <Button
           className="mt-4"
           onPress={function handleGoBack() {
-            router.back();
+            void router.push("/");
           }}
           variant="secondary"
         >
-          Back to previous page
+          Return to guestbook
         </Button>
       </div>
     </main>

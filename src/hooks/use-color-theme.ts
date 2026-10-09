@@ -10,6 +10,8 @@ export function useColorTheme() {
     const savedTheme = window.localStorage.getItem("guestbook-theme");
     if (savedTheme === "light" || savedTheme === "dark") {
       setTheme(savedTheme);
+    } else {
+      setTheme(window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
     }
     setIsReady(true);
   }, []);

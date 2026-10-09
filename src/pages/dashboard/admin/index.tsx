@@ -5,7 +5,6 @@ import { trpc } from "@/lib/utils/trpc";
 import type { AppRouter } from "@/server/routers/_app";
 import {
   Alert,
-  AlertDialog,
   Button,
   Input,
   Label,
@@ -20,6 +19,7 @@ import type { inferRouterOutputs } from "@trpc/server";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { LuArrowUpRight, LuMessageSquare } from "react-icons/lu";
 
 type RouterOutputs = inferRouterOutputs<AppRouter>;
 type GuestbookMessage = RouterOutputs["guestbook"]["getWithEmail"][number];
@@ -46,6 +46,7 @@ export default function DashboardAdminPage() {
     trpc.guestbook.getWithEmail.useQuery(
       { key: "get-guestbook" },
       {
+        enabled: session?.user.role === "admin",
         refetchOnReconnect: false,
         refetchOnWindowFocus: false,
         placeholderData: keepPreviousData,
@@ -190,8 +191,8 @@ export default function DashboardAdminPage() {
         <div className="dashboard-page">
           <header className="dashboard-topbar">
             <Link className="dashboard-brand" href="/">
-              <span className="dashboard-brand-mark" aria-hidden="true" />
-              <span>Guestbook</span>
+              <span className="site-brand-mark"><LuMessageSquare aria-hidden="true" /></span>
+              <span>guestbook<span className="brand-domain">.ekel.dev</span></span>
               <span className="dashboard-brand-divider" aria-hidden="true" />
               <span className="dashboard-brand-section">Admin</span>
             </Link>
@@ -221,30 +222,28 @@ export default function DashboardAdminPage() {
             )}
             <div className="dashboard-heading">
               <div>
-                <p className="dashboard-eyebrow">WORKSPACE / MODERATION</p>
-                <h1>Guestbook management</h1>
+                <h1>Your guestbook, at a glance.</h1>
                 <p className="dashboard-intro">
-                  Keep the conversation useful. Review messages and manage the
-                  people who leave them.
+                  Review the conversation and manage contributor activity.
                 </p>
               </div>
               <Link className="dashboard-back-link" href="/">
-                View public guestbook <span aria-hidden="true">↗</span>
+                View guestbook <LuArrowUpRight aria-hidden="true" />
               </Link>
             </div>
 
             <section className="dashboard-stats" aria-label="Guestbook summary">
               <SummaryCard
                 label="Published messages"
-                value={isPending ? "—" : messages.length}
+                value={isPending || isError ? "—" : messages.length}
               />
               <SummaryCard
                 label="Contributors"
-                value={isPending ? "—" : contributors.length}
+                value={isPending || isError ? "—" : contributors.length}
               />
               <SummaryCard
                 label="Messages this month"
-                value={isPending ? "—" : messagesThisMonth}
+                value={isPending || isError ? "—" : messagesThisMonth}
               />
             </section>
 
@@ -265,16 +264,18 @@ export default function DashboardAdminPage() {
                 </Button>
               </div>
             ) : (
-              <Tabs className="dashboard-tabs" defaultSelectedKey="messages">
+              <Tabs className="dashboard-tabs" variant="secondary" defaultSelectedKey="messages">
                 <Tabs.ListContainer>
                   <Tabs.List aria-label="Guestbook management sections">
                     <Tabs.Tab id="messages">
+                      <Tabs.Indicator />
                       Messages{" "}
                       <span className="dashboard-tab-count">
                         {messages.length}
                       </span>
                     </Tabs.Tab>
                     <Tabs.Tab id="contributors">
+                      <Tabs.Indicator />
                       Contributors{" "}
                       <span className="dashboard-tab-count">
                         {contributors.length}
@@ -312,8 +313,8 @@ export default function DashboardAdminPage() {
                         />
                         {messages.length > 0 ? (
                           <ConfirmAction
-                            triggerLabel="Clear all"
-                            triggerVariant="tertiary"
+                            triggerLabel="Delete all messages"
+                            triggerVariant="danger-soft"
                             title="Delete all guestbook messages?"
                             description="This permanently removes every published guestbook message. Contributor accounts are not affected."
                             actionLabel="Delete all messages"
@@ -404,7 +405,6 @@ export default function DashboardAdminPage() {
                   >
                     <Modal.Header>
                       <div>
-                        <p className="dashboard-eyebrow">MESSAGE MODERATION</p>
                         <Modal.Heading>Edit message</Modal.Heading>
                       </div>
                     </Modal.Header>
@@ -462,11 +462,10 @@ function SummaryCard({
 }: { label: string; value: number | string }) {
   return (
     <article className="summary-card">
-      <p>{label}</p>
-      <strong>
+      <p className="summary-card-label">{label}</p>
+      <strong className="summary-card-value">
         {typeof value === "number" ? value.toLocaleString() : value}
       </strong>
-      <span className="summary-card-marker" aria-hidden="true" />
     </article>
   );
 }
@@ -709,71 +708,6 @@ function ContributorTable({
   );
 }
 
-function ConfirmAction({
-  triggerLabel,
-  triggerVariant,
-  title,
-  description,
-  actionLabel,
-  isPending,
-  onConfirm,
-}: {
-  triggerLabel: string;
-  triggerVariant: "tertiary" | "danger";
-  title: string;
-  description: string;
-  actionLabel: string;
-  isPending: boolean;
-  onConfirm: () => Promise<unknown>;
-}) {
-  async function handleConfirm(close: () => void) {
-    try {
-      await onConfirm();
-      close();
-    } catch {
-      // Mutation callbacks report the failure and keep the confirmation open.
-    }
-  }
-
-  return (
-    <AlertDialog>
-      <Button size="sm" variant={triggerVariant}>
-        {triggerLabel}
-      </Button>
-      <AlertDialog.Backdrop variant="blur" isDismissable>
-        <AlertDialog.Container placement="center" size="sm">
-          <AlertDialog.Dialog>
-            {function renderConfirmation({ close }) {
-              return (
-                <>
-                  <AlertDialog.Header>
-                    <AlertDialog.Icon status="danger" />
-                    <AlertDialog.Heading>{title}</AlertDialog.Heading>
-                  </AlertDialog.Header>
-                  <AlertDialog.Body>{description}</AlertDialog.Body>
-                  <AlertDialog.Footer>
-                    <Button slot="close" variant="secondary">
-                      Cancel
-                    </Button>
-                    <Button
-                      variant="danger"
-                      isPending={isPending}
-                      onPress={function handleConfirmPress() {
-                        void handleConfirm(close);
-                      }}
-                    >
-                      {actionLabel}
-                    </Button>
-                  </AlertDialog.Footer>
-                </>
-              );
-            }}
-          </AlertDialog.Dialog>
-        </AlertDialog.Container>
-      </AlertDialog.Backdrop>
-    </AlertDialog>
-  );
-}
 
 function EmptyState({
   title,
@@ -781,7 +715,7 @@ function EmptyState({
 }: { title: string; description: string }) {
   return (
     <div className="dashboard-empty">
-      <span className="dashboard-empty-mark" aria-hidden="true" />
+      <LuMessageSquare className="empty-icon" aria-hidden="true" />
       <h3>{title}</h3>
       <p>{description}</p>
     </div>
@@ -794,3 +728,4 @@ function formatDate(date: GuestbookMessage["created_at"]) {
     timeStyle: "short",
   }).format(new Date(date));
 }
+import { ConfirmAction } from "@/components/confirm-action";

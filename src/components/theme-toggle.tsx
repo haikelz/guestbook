@@ -1,5 +1,6 @@
 import { Button } from "@heroui/react";
 import type { ColorTheme } from "@/hooks/use-color-theme";
+import { LuMoon, LuSun } from "react-icons/lu";
 
 export function ThemeToggle({
   theme,
@@ -16,8 +17,9 @@ export function ThemeToggle({
       onPress={onToggle}
       size="sm"
       variant="tertiary"
+      isIconOnly
     >
-      {nextTheme === "light" ? "Light mode" : "Dark mode"}
+      {nextTheme === "light" ? <LuSun aria-hidden="true" /> : <LuMoon aria-hidden="true" />}
     </Button>
   );
 }
