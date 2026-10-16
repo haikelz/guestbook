@@ -237,18 +237,11 @@ function DialogCreateMessage({
     defaultValues: { message: "" },
     resolver: zodResolver(messageSchema),
   });
-  const { data: session } = useSession();
   const createMessageMutation = trpc.guestbook.post.useMutation();
 
   async function handleCreateMessage(values: { message: string }) {
-    const email = session?.user.email;
-    const username = session?.user.name?.trim() || email?.split("@")[0];
-    if (!email || !username) return;
-
     try {
       await createMessageMutation.mutateAsync({
-        email,
-        username,
         message: values.message,
       });
       setValue("message", "");

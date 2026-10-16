@@ -1,7 +1,10 @@
 import { prisma } from "@/lib/utils/prisma";
+import { messageSchema } from "@/lib/utils/schemas";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import {
   adminProcedure,
+  authedProcedure,
   createCallerFactory,
   publicProcedure,
   router,
@@ -9,21 +12,17 @@ import {
 
 export const appRouter = router({
   guestbook: {
-    post: publicProcedure
-      .input(
-        z.object({
-          message: z.string(),
-          email: z.string(),
-          username: z.string(),
-        })
-      )
-      .mutation(async ({ input }) => {
+    // Identity comes from the session, never from the client payload.
+    post: authedProcedure
+      .input(messageSchema)
+      .mutation(async ({ ctx, input }) => {
+        const email = ctx.session.user.email;
+        const username = ctx.session.user.name?.trim() || email?.split("@")[0];
+        if (!email || !username) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Profile has no email" });
+        }
         await prisma.guestbook.create({
-          data: {
-            message: input.message,
-            username: input.username,
-            email: input.email,
-          },
+          data: { message: input.message, username, email },
         });
       }),
     get: publicProcedure
@@ -82,9 +81,8 @@ export const appRouter = router({
     }),
     put: adminProcedure
       .input(
-        z.object({
+        messageSchema.extend({
           id: z.number(),
-          message: z.string(),
           email: z.string(),
           username: z.string(),
         })

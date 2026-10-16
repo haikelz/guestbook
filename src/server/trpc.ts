@@ -1,4 +1,5 @@
 import { TRPCError, initTRPC } from "@trpc/server";
+import type { Session } from "next-auth";
 import type { Context } from "./context";
 
 const t = initTRPC.context<Context>().create({});
@@ -14,18 +15,21 @@ export const createCallerFactory = t.createCallerFactory;
 
 // Create a new procedure for admin-only access
 const isAuthed = t.middleware(({ ctx, next }) => {
-  if (!ctx.session || !(ctx.session as any)?.user) {
+  const session = ctx.session as Session | null;
+  if (!session?.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
-  return next({ ctx: { session: ctx.session } });
+  return next({ ctx: { session } });
 });
 
 const isAdmin = t.middleware(({ ctx, next }) => {
-  const role = (ctx.session as any)?.user?.role;
+  const role = (ctx.session as Session | null)?.user?.role;
   if (role !== "admin") {
     throw new TRPCError({ code: "FORBIDDEN" });
   }
   return next();
 });
 
-export const adminProcedure = t.procedure.use(isAuthed).use(isAdmin);
+export const authedProcedure = t.procedure.use(isAuthed);
+
+export const adminProcedure = authedProcedure.use(isAdmin);
