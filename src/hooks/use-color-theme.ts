@@ -18,10 +18,10 @@ export function useColorTheme() {
 
   useEffect(
     function applyTheme() {
+      // Until restore runs, keep the theme _document's inline script already applied.
+      if (!isReady) return;
       document.documentElement.dataset.theme = theme;
-      if (isReady) {
-        window.localStorage.setItem("guestbook-theme", theme);
-      }
+      window.localStorage.setItem("guestbook-theme", theme);
     },
     [isReady, theme],
   );

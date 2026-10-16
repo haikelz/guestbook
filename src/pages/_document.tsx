@@ -22,6 +22,12 @@ export default class RootDocument extends Document {
           <link rel="icon" type="image/x-icon" href="/favicon.ico" />
         </Head>
         <body>
+          {/* Apply the saved theme before first paint so dark users never see a light flash. */}
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `try{var t=localStorage.getItem("guestbook-theme");if(t!=="light"&&t!=="dark")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.dataset.theme=t}catch(e){}`,
+            }}
+          />
           <Main />
           <NextScript />
         </body>
