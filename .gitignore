@@ -45,3 +45,6 @@ next-env.d.ts
 # Local browser evidence and tool logs
 /.playwright-cli/
 /.impeccable/review/
+
+# Claude Code personal settings
+.claude/settings.local.json
