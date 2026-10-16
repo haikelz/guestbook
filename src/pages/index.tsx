@@ -20,8 +20,9 @@ import { FaGithub, FaGoogle } from "react-icons/fa";
 
 type GuestbookMessage = Omit<GuestbookProps, "email">;
 
+const detector = createDetector({ languages: [english, indonesian] });
+
 export default function Guestbook() {
-  const detector = createDetector({ languages: [english, indonesian] });
   const { theme, toggleTheme } = useColorTheme();
   const [notice, setNotice] = useState<{
     message: string;
