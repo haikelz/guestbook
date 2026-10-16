@@ -1,16 +1,18 @@
-import {
-  NEXT_PUBLIC_ADMIN_EMAIL,
-  NEXT_PUBLIC_GITHUB_ID,
-  NEXT_PUBLIC_GITHUB_SECRET,
-  NEXT_PUBLIC_GITHUB_USERNAME,
-  NEXT_PUBLIC_GOOGLE_ID,
-  NEXT_PUBLIC_GOOGLE_SECRET,
-  NEXTAUTH_SECRET,
-} from "@/lib/utils/constants";
 import type { Awaitable, NextAuthOptions, User } from "next-auth";
 import NextAuth from "next-auth/next";
 import GithubProvider, { GithubProfile } from "next-auth/providers/github";
 import GoogleProvider, { GoogleProfile } from "next-auth/providers/google";
+
+// Server-only: a NEXT_PUBLIC_ prefix would let Next inline these into client bundles.
+const {
+  ADMIN_EMAIL,
+  GITHUB_ID = "",
+  GITHUB_SECRET = "",
+  GITHUB_USERNAME,
+  GOOGLE_ID = "",
+  GOOGLE_SECRET = "",
+  NEXTAUTH_SECRET,
+} = process.env;
 
 export const options: NextAuthOptions = {
   theme: {
@@ -22,27 +24,27 @@ export const options: NextAuthOptions = {
         return {
           ...profile,
           role:
-            profile.login === NEXT_PUBLIC_GITHUB_USERNAME ? "admin" : "guest",
+            profile.login === GITHUB_USERNAME ? "admin" : "guest",
           name: profile.name ?? profile.login,
           id: profile.id.toString(),
           image: profile.avatar_url,
         };
       },
-      clientId: NEXT_PUBLIC_GITHUB_ID,
-      clientSecret: NEXT_PUBLIC_GITHUB_SECRET,
+      clientId: GITHUB_ID,
+      clientSecret: GITHUB_SECRET,
     }),
     GoogleProvider({
       profile(profile: GoogleProfile): Awaitable<User> {
         return {
           ...profile,
-          role: profile.email === NEXT_PUBLIC_ADMIN_EMAIL ? "admin" : "guest",
+          role: profile.email === ADMIN_EMAIL ? "admin" : "guest",
           name: profile.name ?? profile.email?.split("@")[0] ?? profile.sub,
           id: profile.sub,
           image: profile.picture,
         };
       },
-      clientId: NEXT_PUBLIC_GOOGLE_ID,
-      clientSecret: NEXT_PUBLIC_GOOGLE_SECRET,
+      clientId: GOOGLE_ID,
+      clientSecret: GOOGLE_SECRET,
     }),
   ],
   secret: NEXTAUTH_SECRET,
