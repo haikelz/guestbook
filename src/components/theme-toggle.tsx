@@ -16,7 +16,7 @@ export function ThemeToggle({
       aria-label={`Switch to ${nextTheme} mode`}
       onPress={onToggle}
       size="sm"
-      variant="tertiary"
+      variant="ghost"
       isIconOnly
     >
       {nextTheme === "light" ? <LuSun aria-hidden="true" /> : <LuMoon aria-hidden="true" />}

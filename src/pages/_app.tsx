@@ -10,21 +10,12 @@ import { Provider } from "jotai";
 import { SessionProvider } from "next-auth/react";
 import { NextSeo } from "next-seo";
 import type { AppProps } from "next/app";
-import localFont from "next/font/local";
+import { Inter } from "next/font/google";
 import { useState } from "react";
 import SeoConfig from "../../next-seo.config";
 import { trpc } from "../lib/utils/trpc";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+const inter = Inter({ subsets: ["latin"] });
 
 export default function App({
   Component,
@@ -49,13 +40,8 @@ export default function App({
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <SessionProvider session={session}>
         <style jsx global>{`
-          body {
-            font-family: ${geistSans.style.fontFamily};
-          }
-
-          .prose pre,
-          pre code {
-            font-family: ${geistMono.style.fontFamily};
+          :root {
+            --font-inter: ${inter.style.fontFamily};
           }
         `}</style>
         <NextSeo {...SeoConfig} />

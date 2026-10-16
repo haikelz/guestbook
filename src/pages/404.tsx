@@ -21,7 +21,7 @@ export default function Custom404() {
           onPress={function handleGoBack() {
             void router.push("/");
           }}
-          variant="secondary"
+          variant="outline"
         >
           Return to guestbook
         </Button>

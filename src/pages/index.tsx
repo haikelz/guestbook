@@ -1,3 +1,4 @@
+import { ConfirmAction } from "@/components/confirm-action";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useColorTheme } from "@/hooks/use-color-theme";
 import { dateFormatter } from "@/lib/helpers/date-formatter";
@@ -9,14 +10,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { keepPreviousData } from "@tanstack/react-query";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { NextSeo } from "next-seo";
+import Image from "next/image";
 import Link from "next/link";
 import { createDetector } from "profanity-kit/core";
 import { english } from "profanity-kit/languages/en";
 import { indonesian } from "profanity-kit/languages/id";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { LuArrowUpRight, LuMessageSquare, LuPenLine } from "react-icons/lu";
 import { FaGithub, FaGoogle } from "react-icons/fa";
+import { LuArrowUpRight, LuMessageSquare, LuPenLine } from "react-icons/lu";
 
 type GuestbookMessage = Omit<GuestbookProps, "email">;
 
@@ -70,18 +72,97 @@ export default function Guestbook() {
         description="Write a message for me and others"
       />
       <div className="guestbook-viewport">
-        <div className="guestbook-page">
-          <header className="site-topbar">
+        <header className="site-topbar">
+          <div className="topbar-inner">
             <Link href="/" className="site-brand">
-              <span className="site-brand-mark"><LuMessageSquare aria-hidden="true" /></span>
-              guestbook<span className="brand-domain">.ekel.dev</span>
+              <Image
+                src="https://avatars.githubusercontent.com/u/77146709?v=4"
+                alt=""
+                width={28}
+                height={28}
+                className="site-brand-mark"
+              />
+              <span>
+                guestbook<span className="brand-domain">.ekel.dev</span>
+              </span>
             </Link>
             <nav className="site-actions" aria-label="Account and appearance">
               {session?.user.role === "admin" && <GoToDashboardAdmin />}
               <ThemeToggle theme={theme} onToggle={toggleTheme} />
-              {session && <Button size="sm" variant="tertiary" onPress={function handleSignOut() { void signOut(); }}>Sign out</Button>}
+              {session && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onPress={function handleSignOut() {
+                    void signOut();
+                  }}
+                >
+                  Sign out
+                </Button>
+              )}
             </nav>
-          </header>
+          </div>
+        </header>
+        <main className="guestbook-page">
+          <section
+            className="guestbook-header"
+            aria-labelledby="guestbook-title"
+          >
+            <div className="guestbook-welcome-copy">
+              <h1 id="guestbook-title">Guestbook</h1>
+              <p className="guestbook-intro">
+                {session
+                  ? `Signed in as ${session.user.name || session.user.email}. Leave a note for me and others.`
+                  : "Write a message for me and others."}
+              </p>
+            </div>
+            <div className="guestbook-header-actions">
+              {sessionStatus === "loading" ? (
+                <p className="guestbook-auth-caption" role="status">
+                  Checking sign-in…
+                </p>
+              ) : session ? (
+                <DialogCreateMessage
+                  onCreated={function handleMessageCreated() {
+                    void refetch();
+                    setNotice({
+                      message: "Your message has been added.",
+                      status: "success",
+                    });
+                  }}
+                  onError={function handleMessageError() {
+                    setNotice({
+                      message: "Could not add your message. Please try again.",
+                      status: "danger",
+                    });
+                  }}
+                />
+              ) : (
+                <>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onPress={function handleGitHubSignIn() {
+                      void signIn("github");
+                    }}
+                  >
+                    <FaGithub aria-hidden="true" />
+                    Continue with GitHub
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onPress={function handleGoogleSignIn() {
+                      void signIn("google");
+                    }}
+                  >
+                    <FaGoogle aria-hidden="true" />
+                    Continue with Google
+                  </Button>
+                </>
+              )}
+            </div>
+          </section>
           {notice && (
             <Alert
               className="guestbook-notice"
@@ -92,79 +173,45 @@ export default function Guestbook() {
               <Alert.Content>{notice.message}</Alert.Content>
             </Alert>
           )}
-          <main className="guestbook-layout">
-            <header className="guestbook-header">
-              <LuMessageSquare className="welcome-icon" aria-hidden="true" />
-              <div className="guestbook-welcome-copy">
-                <h1>A little hello.<br />A lasting note.</h1>
-                <p className="guestbook-intro">
-                  Write a message for me and others.
-                  <br />Glad you stopped by.
-                </p>
+          <section
+            className="guestbook-feed"
+            aria-labelledby="guestbook-feed-title"
+          >
+            <div className="guestbook-feed-heading">
+              <h2 id="guestbook-feed-title">Messages</h2>
+              <span className="guestbook-message-count">
+                {isPending || isError ? "" : sortedGuestbook.length}
+              </span>
+            </div>
+            {isPending ? (
+              <div className="guestbook-state" role="status">
+                Loading messages…
               </div>
-              <div className="guestbook-header-actions">
-                <p className="guestbook-auth-caption">{session ? `Signed in as ${session.user.name || session.user.email}` : "Sign in to leave your mark."}</p>
-                  {sessionStatus === "loading" ? <p role="status">Checking sign-in…</p> : session ? (
-                  <DialogCreateMessage
-                    onCreated={function handleMessageCreated() {
-                      void refetch();
-                      setNotice({
-                        message: "Your message has been added.",
-                        status: "success",
-                      });
-                    }}
-                    onError={function handleMessageError() {
-                      setNotice({
-                        message:
-                          "Could not add your message. Please try again.",
-                        status: "danger",
-                      });
-                    }}
-                  />
-                ) : (
-                  <div className="guestbook-sign-in-actions">
-                    <Button
-                      variant="secondary"
-                      onPress={function handleGitHubSignIn() {
-                        void signIn("github");
-                      }}
-                    >
-                      <FaGithub aria-hidden="true" />
-                      Continue with GitHub
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      onPress={function handleGoogleSignIn() {
-                        void signIn("google");
-                      }}
-                    >
-                      <FaGoogle aria-hidden="true" />
-                      Continue with Google
-                    </Button>
-                  </div>
-                )}
+            ) : isError ? (
+              <div className="guestbook-state">
+                <h3>Messages couldn't load</h3>
+                <p role="alert">Please try again in a moment.</p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onPress={function handleRetry() {
+                    void refetch();
+                  }}
+                >
+                  Try again
+                </Button>
               </div>
-              <p className="guestbook-welcome-footer">A small corner for good conversations.</p>
-            </header>
-            <section className="guestbook-feed" aria-label="Guestbook messages">
-              <div className="guestbook-feed-heading">
-                <div>
-                  <h2>The conversation</h2>
-                  <p>Notes from everyone who stopped by.</p>
-                </div>
-                <span className="guestbook-message-count">
-                  {isPending || isError ? "" : `${sortedGuestbook.length} messages`}
-                </span>
-              </div>
-              {isPending ? <div className="guestbook-state" role="status">Loading messages…</div> : isError ? <div className="guestbook-state"><h3>Messages couldn't load</h3><p role="alert">Please try again in a moment.</p><Button variant="secondary" onPress={function handleRetry() { void refetch(); }}>Try again</Button></div> : sortedGuestbook.length ? (
-                <div className="guestbook-message-list">
-                  {sortedGuestbook.map(function renderMessage(
-                    item: GuestbookMessage,
-                  ) {
-                    return (
-                      <article className="guestbook-message" key={item.id}>
-                        <span className="guestbook-avatar" aria-hidden="true">{item.username.slice(0, 1).toUpperCase()}</span>
-                        <div className="guestbook-message-content">
+            ) : sortedGuestbook.length ? (
+              <div className="guestbook-message-list">
+                {sortedGuestbook.map(function renderMessage(
+                  item: GuestbookMessage,
+                ) {
+                  return (
+                    <article className="guestbook-message" key={item.id}>
+                      <span className="guestbook-avatar" aria-hidden="true">
+                        {item.username.slice(0, 1).toUpperCase()}
+                      </span>
+                      <div className="guestbook-message-content">
                         <div className="guestbook-message-topline">
                           <span className="guestbook-author">
                             @{item.username}
@@ -177,37 +224,42 @@ export default function Guestbook() {
                         </div>
                         <p>{item.message}</p>
                         {session?.user.role === "admin" && (
-                          <ConfirmAction
-                            triggerLabel="Delete message"
-                            triggerVariant="tertiary"
-                            title="Delete this message?"
-                            description="This permanently removes the message from the public guestbook."
-                            actionLabel="Delete message"
-                            isPending={deleteMessageMutation.isPending}
-                            onConfirm={function handleDelete() {
-                              return handleDeleteMessage(item.id, item.username);
-                            }}
-                          />
+                          <div className="guestbook-delete-message">
+                            <ConfirmAction
+                              triggerLabel="Delete"
+                              triggerVariant="tertiary"
+                              title="Delete this message?"
+                              description="This permanently removes the message from the public guestbook."
+                              actionLabel="Delete message"
+                              isPending={deleteMessageMutation.isPending}
+                              onConfirm={function handleDelete() {
+                                return handleDeleteMessage(
+                                  item.id,
+                                  item.username,
+                                );
+                              }}
+                            />
+                          </div>
                         )}
-                        </div>
-                      </article>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="guestbook-empty-state">
-                  <LuMessageSquare className="empty-icon" aria-hidden="true" />
-                  <h3>No messages yet</h3>
-                  <p>Sign in and leave the first note.</p>
-                </div>
-              )}
-            </section>
-          </main>
-          <footer className="guestbook-footer">
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="guestbook-empty-state">
+                <LuMessageSquare className="empty-icon" aria-hidden="true" />
+                <h3>No messages yet</h3>
+                <p>Sign in and leave the first note.</p>
+              </div>
+            )}
+          </section>
+        </main>
+        <footer className="guestbook-footer">
+          <div className="footer-inner">
             <span>guestbook.ekel.dev</span>
-            <span>Thanks for being here.</span>
-          </footer>
-        </div>
+          </div>
+        </footer>
       </div>
     </>
   );
@@ -256,6 +308,7 @@ function DialogCreateMessage({
   return (
     <>
       <Button
+        size="sm"
         variant="primary"
         onPress={function handleOpenCreateMessage() {
           setIsOpen(true);
@@ -298,7 +351,7 @@ function DialogCreateMessage({
               </Modal.Body>
               <Modal.Footer>
                 <Button
-                  variant="secondary"
+                  variant="outline"
                   slot="close"
                   onPress={function handleCancel() {
                     setIsOpen(false);
@@ -322,4 +375,3 @@ function DialogCreateMessage({
     </>
   );
 }
-import { ConfirmAction } from "@/components/confirm-action";

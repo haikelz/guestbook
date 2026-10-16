@@ -188,8 +188,8 @@ export default function DashboardAdminPage() {
   return (
     <ProtectedLayout session={session}>
       <div className="dashboard-viewport">
-        <div className="dashboard-page">
-          <header className="dashboard-topbar">
+        <header className="dashboard-topbar">
+          <div className="topbar-inner">
             <Link className="dashboard-brand" href="/">
               <span className="site-brand-mark"><LuMessageSquare aria-hidden="true" /></span>
               <span>guestbook<span className="brand-domain">.ekel.dev</span></span>
@@ -203,7 +203,7 @@ export default function DashboardAdminPage() {
               <ThemeToggle theme={theme} onToggle={toggleTheme} />
               <Button
                 size="sm"
-                variant="tertiary"
+                variant="ghost"
                 onPress={function handleSignOut() {
                   void signOut({ callbackUrl: "/" });
                 }}
@@ -211,8 +211,9 @@ export default function DashboardAdminPage() {
                 Sign out
               </Button>
             </div>
-          </header>
-
+          </div>
+        </header>
+        <div className="dashboard-page">
           <main className="dashboard-main">
             {notice && (
               <Alert status={notice.tone}>
@@ -222,7 +223,7 @@ export default function DashboardAdminPage() {
             )}
             <div className="dashboard-heading">
               <div>
-                <h1>Your guestbook, at a glance.</h1>
+                <h1>Dashboard</h1>
                 <p className="dashboard-intro">
                   Review the conversation and manage contributor activity.
                 </p>
@@ -255,7 +256,7 @@ export default function DashboardAdminPage() {
               <div className="dashboard-state dashboard-error">
                 <p role="alert">Could not load guestbook data.</p>
                 <Button
-                  variant="secondary"
+                  variant="outline"
                   onPress={function handleRetry() {
                     void refetch();
                   }}
@@ -431,7 +432,7 @@ export default function DashboardAdminPage() {
                     <Modal.Footer>
                       <Button
                         type="button"
-                        variant="secondary"
+                        variant="outline"
                         isDisabled={updateMessageMutation.isPending}
                         onPress={close}
                       >

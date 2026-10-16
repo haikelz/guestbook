@@ -43,7 +43,7 @@ export function ConfirmAction({
                   </AlertDialog.Header>
                   <AlertDialog.Body>{description}</AlertDialog.Body>
                   <AlertDialog.Footer>
-                    <Button slot="close" variant="secondary">
+                    <Button slot="close" variant="outline">
                       Cancel
                     </Button>
                     <Button

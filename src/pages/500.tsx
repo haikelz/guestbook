@@ -21,7 +21,7 @@ export default function Custom500() {
           onPress={function handleGoBack() {
             void router.push("/");
           }}
-          variant="secondary"
+          variant="outline"
         >
           Return to guestbook
         </Button>
