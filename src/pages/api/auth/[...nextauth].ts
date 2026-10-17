@@ -3,16 +3,15 @@ import NextAuth from "next-auth/next";
 import GithubProvider, { GithubProfile } from "next-auth/providers/github";
 import GoogleProvider, { GoogleProfile } from "next-auth/providers/google";
 
-// Server-only: a NEXT_PUBLIC_ prefix would let Next inline these into client bundles.
-const {
-  ADMIN_EMAIL,
-  GITHUB_ID = "",
-  GITHUB_SECRET = "",
-  GITHUB_USERNAME,
-  GOOGLE_ID = "",
-  GOOGLE_SECRET = "",
-  NEXTAUTH_SECRET,
-} = process.env;
+// Read only in this server-side API route, never via a module the client imports,
+// so Next does not inline these NEXT_PUBLIC_ values into browser bundles.
+const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+const GITHUB_ID = process.env.NEXT_PUBLIC_GITHUB_ID ?? "";
+const GITHUB_SECRET = process.env.NEXT_PUBLIC_GITHUB_SECRET ?? "";
+const GITHUB_USERNAME = process.env.NEXT_PUBLIC_GITHUB_USERNAME;
+const GOOGLE_ID = process.env.NEXT_PUBLIC_GOOGLE_ID ?? "";
+const GOOGLE_SECRET = process.env.NEXT_PUBLIC_GOOGLE_SECRET ?? "";
+const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET;
 
 export const options: NextAuthOptions = {
   theme: {
