@@ -1,3 +1,4 @@
+import { ConfirmAction } from "@/components/confirm-action";
 import { ProtectedLayout } from "@/components/protected-layout";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useColorTheme } from "@/hooks/use-color-theme";
@@ -17,6 +18,7 @@ import {
 import { keepPreviousData } from "@tanstack/react-query";
 import type { inferRouterOutputs } from "@trpc/server";
 import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { LuArrowUpRight, LuMessageSquare } from "react-icons/lu";
@@ -121,7 +123,10 @@ export default function DashboardAdminPage() {
       setNotice({ title: "Message updated", tone: "success" });
     },
     onError: function onUpdateError() {
-      setNotice({ title: "Could not update message. Please try again.", tone: "danger" });
+      setNotice({
+        title: "Could not update message. Please try again.",
+        tone: "danger",
+      });
     },
   });
   const deleteMessageMutation = trpc.guestbook.delete.useMutation({
@@ -130,7 +135,10 @@ export default function DashboardAdminPage() {
       setNotice({ title: "Message deleted", tone: "success" });
     },
     onError: function onDeleteError() {
-      setNotice({ title: "Could not delete message. Please try again.", tone: "danger" });
+      setNotice({
+        title: "Could not delete message. Please try again.",
+        tone: "danger",
+      });
     },
   });
   const deleteContributorMutation =
@@ -140,7 +148,10 @@ export default function DashboardAdminPage() {
         setNotice({ title: "Contributor messages deleted", tone: "success" });
       },
       onError: function onDeleteContributorError() {
-        setNotice({ title: "Could not delete contributor messages. Please try again.", tone: "danger" });
+        setNotice({
+          title: "Could not delete contributor messages. Please try again.",
+          tone: "danger",
+        });
       },
     });
   const deleteAllMutation = trpc.guestbook.deleteAllUsers.useMutation({
@@ -149,7 +160,10 @@ export default function DashboardAdminPage() {
       setNotice({ title: "All messages deleted", tone: "success" });
     },
     onError: function onDeleteAllError() {
-      setNotice({ title: "Could not delete messages. Please try again.", tone: "danger" });
+      setNotice({
+        title: "Could not delete messages. Please try again.",
+        tone: "danger",
+      });
     },
   });
 
@@ -191,8 +205,16 @@ export default function DashboardAdminPage() {
         <header className="dashboard-topbar">
           <div className="topbar-inner">
             <Link className="dashboard-brand" href="/">
-              <span className="site-brand-mark"><LuMessageSquare aria-hidden="true" /></span>
-              <span>guestbook<span className="brand-domain">.ekel.dev</span></span>
+              <Image
+                src="https://avatars.githubusercontent.com/u/77146709?v=4"
+                alt=""
+                width={28}
+                height={28}
+                className="site-brand-mark"
+              />
+              <span>
+                guestbook<span className="brand-domain">.ekel.dev</span>
+              </span>
               <span className="dashboard-brand-divider" aria-hidden="true" />
               <span className="dashboard-brand-section">Admin</span>
             </Link>
@@ -265,7 +287,11 @@ export default function DashboardAdminPage() {
                 </Button>
               </div>
             ) : (
-              <Tabs className="dashboard-tabs" variant="secondary" defaultSelectedKey="messages">
+              <Tabs
+                className="dashboard-tabs"
+                variant="secondary"
+                defaultSelectedKey="messages"
+              >
                 <Tabs.ListContainer>
                   <Tabs.List aria-label="Guestbook management sections">
                     <Tabs.Tab id="messages">
@@ -460,7 +486,10 @@ export default function DashboardAdminPage() {
 function SummaryCard({
   label,
   value,
-}: { label: string; value: number | string }) {
+}: {
+  label: string;
+  value: number | string;
+}) {
   return (
     <article className="summary-card">
       <p className="summary-card-label">{label}</p>
@@ -709,11 +738,13 @@ function ContributorTable({
   );
 }
 
-
 function EmptyState({
   title,
   description,
-}: { title: string; description: string }) {
+}: {
+  title: string;
+  description: string;
+}) {
   return (
     <div className="dashboard-empty">
       <LuMessageSquare className="empty-icon" aria-hidden="true" />
@@ -729,4 +760,3 @@ function formatDate(date: GuestbookMessage["created_at"]) {
     timeStyle: "short",
   }).format(new Date(date));
 }
-import { ConfirmAction } from "@/components/confirm-action";
