@@ -7,4 +7,5 @@ export const dateFormatter = new Intl.DateTimeFormat("id", {
   year: "numeric",
   day: "numeric",
   month: "long",
+  timeZone: "Asia/Jakarta",
 });

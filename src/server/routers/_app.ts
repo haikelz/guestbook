@@ -38,7 +38,10 @@ export const appRouter = router({
           },
         });
 
-        return data;
+        return data.map((item) => ({
+          ...item,
+          created_at: item.created_at.toISOString(),
+        }));
       }),
     getWithEmail: adminProcedure
       .input(z.object({ key: z.string() }))

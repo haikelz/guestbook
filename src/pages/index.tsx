@@ -5,11 +5,13 @@ import { dateFormatter } from "@/lib/helpers/date-formatter";
 import { SITE_URL } from "@/lib/utils/constants";
 import { messageSchema } from "@/lib/utils/schemas";
 import { trpc } from "@/lib/utils/trpc";
+import { createCaller } from "@/server/routers/_app";
 import type { GuestbookProps } from "@/types";
 import { Alert, Button, Modal, TextArea } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { keepPreviousData } from "@tanstack/react-query";
 import { signIn, signOut, useSession } from "next-auth/react";
+import type { GetServerSideProps } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
@@ -23,13 +25,36 @@ import { LuArrowUpRight, LuMessageSquare, LuPenLine } from "react-icons/lu";
 
 type GuestbookMessage = Omit<GuestbookProps, "email">;
 
+type GuestbookPageProps = {
+  initialMessages: GuestbookMessage[] | null;
+};
+
 const PAGE_TITLE = "Guestbook · ekel.dev";
 const PAGE_DESCRIPTION =
   "Leave a note for Haikel and read messages from visitors to ekel.dev.";
 
+// Render messages into the HTML so crawlers and link previews see real content.
+export const getServerSideProps: GetServerSideProps<GuestbookPageProps> =
+  async function getGuestbookProps({ res }) {
+    res.setHeader(
+      "Cache-Control",
+      "public, s-maxage=60, stale-while-revalidate=300",
+    );
+
+    try {
+      const initialMessages = await createCaller({ session: null }).guestbook.get({
+        key: "get-guestbook",
+      });
+      return { props: { initialMessages } };
+    } catch {
+      // The client query retries and shows its own error state.
+      return { props: { initialMessages: null } };
+    }
+  };
+
 const detector = createDetector({ languages: [english, indonesian] });
 
-export default function Guestbook() {
+export default function Guestbook({ initialMessages }: GuestbookPageProps) {
   const { theme, toggleTheme } = useColorTheme();
   const [notice, setNotice] = useState<{
     message: string;
@@ -38,6 +63,7 @@ export default function Guestbook() {
   const { refetch, data, isPending, isError } = trpc.guestbook.get.useQuery(
     { key: "get-guestbook" },
     {
+      initialData: initialMessages ?? undefined,
       placeholderData: keepPreviousData,
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
