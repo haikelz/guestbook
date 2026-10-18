@@ -7,7 +7,6 @@ import "@/styles/globals.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { httpBatchLink } from "@trpc/client";
-import { Provider } from "jotai";
 import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
 import { Inter } from "next/font/google";
@@ -69,12 +68,10 @@ export default function App({
             content="#0b0d12"
           />
         </Head>
-        <Provider>
-          <QueryClientProvider client={queryClient}>
-            <ReactQueryDevtools />
-            <Component {...pageProps} />
-          </QueryClientProvider>
-        </Provider>
+        <QueryClientProvider client={queryClient}>
+          <ReactQueryDevtools />
+          <Component {...pageProps} />
+        </QueryClientProvider>
       </SessionProvider>
     </trpc.Provider>
   );
