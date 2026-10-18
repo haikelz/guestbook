@@ -232,4 +232,4 @@ HeroUI `Modal` for writing and editing messages; HeroUI `AlertDialog` with the d
 - **Don't** use pill-shaped buttons or tinted `secondary` buttons for neutral actions; use outline.
 - **Don't** colour avatars by user; they stay neutral.
 - **Don't** add uppercase letterspaced eyebrows or oversized display type.
-- **Don't** add page-load animations or decorative effects (the old `react-bits` components are unused).
+- **Don't** add page-load animations or decorative effects.
