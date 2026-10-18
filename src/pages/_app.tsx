@@ -39,11 +39,8 @@ export default function App({
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <SessionProvider session={session}>
-        <style jsx global>{`
-          :root {
-            --font-inter: ${inter.style.fontFamily};
-          }
-        `}</style>
+        {/* On :root so portalled HeroUI overlays share the face. */}
+        <style>{`:root { --font-inter: ${inter.style.fontFamily}; }`}</style>
         <Head>
           <title key="title">Guestbook · ekel.dev</title>
           <meta
