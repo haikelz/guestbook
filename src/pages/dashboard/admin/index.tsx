@@ -18,6 +18,7 @@ import {
 import { keepPreviousData } from "@tanstack/react-query";
 import type { inferRouterOutputs } from "@trpc/server";
 import { signOut, useSession } from "next-auth/react";
+import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -200,286 +201,292 @@ export default function DashboardAdminPage() {
   }
 
   return (
-    <ProtectedLayout session={session}>
-      <div className="dashboard-viewport">
-        <header className="dashboard-topbar">
-          <div className="topbar-inner">
-            <Link className="dashboard-brand" href="/">
-              <Image
-                src="https://avatars.githubusercontent.com/u/77146709?v=4"
-                alt=""
-                width={28}
-                height={28}
-                className="site-brand-mark"
-              />
-              <span>
-                guestbook<span className="brand-domain">.ekel.dev</span>
-              </span>
-              <span className="dashboard-brand-divider" aria-hidden="true" />
-              <span className="dashboard-brand-section">Admin</span>
-            </Link>
-            <div className="dashboard-account">
-              <span className="dashboard-account-name">
-                {session?.user.name ?? session?.user.email}
-              </span>
-              <ThemeToggle theme={theme} onToggle={toggleTheme} />
-              <Button
-                size="sm"
-                variant="ghost"
-                onPress={function handleSignOut() {
-                  void signOut({ callbackUrl: "/" });
-                }}
-              >
-                Sign out
-              </Button>
-            </div>
-          </div>
-        </header>
-        <div className="dashboard-page">
-          <main className="dashboard-main">
-            {notice && (
-              <Alert status={notice.tone}>
-                <Alert.Indicator />
-                <Alert.Content>{notice.title}</Alert.Content>
-              </Alert>
-            )}
-            <div className="dashboard-heading">
-              <div>
-                <h1>Dashboard</h1>
-                <p className="dashboard-intro">
-                  Review the conversation and manage contributor activity.
-                </p>
-              </div>
-              <Link className="dashboard-back-link" href="/">
-                View guestbook <LuArrowUpRight aria-hidden="true" />
+    <>
+      <Head>
+        <title key="title">Dashboard · Guestbook</title>
+        <meta key="robots" name="robots" content="noindex, nofollow" />
+      </Head>
+      <ProtectedLayout session={session}>
+        <div className="dashboard-viewport">
+          <header className="dashboard-topbar">
+            <div className="topbar-inner">
+              <Link className="dashboard-brand" href="/">
+                <Image
+                  src="https://avatars.githubusercontent.com/u/77146709?v=4"
+                  alt=""
+                  width={28}
+                  height={28}
+                  className="site-brand-mark"
+                />
+                <span>
+                  guestbook<span className="brand-domain">.ekel.dev</span>
+                </span>
+                <span className="dashboard-brand-divider" aria-hidden="true" />
+                <span className="dashboard-brand-section">Admin</span>
               </Link>
-            </div>
-
-            <section className="dashboard-stats" aria-label="Guestbook summary">
-              <SummaryCard
-                label="Published messages"
-                value={isPending || isError ? "—" : messages.length}
-              />
-              <SummaryCard
-                label="Contributors"
-                value={isPending || isError ? "—" : contributors.length}
-              />
-              <SummaryCard
-                label="Messages this month"
-                value={isPending || isError ? "—" : messagesThisMonth}
-              />
-            </section>
-
-            {isPending ? (
-              <div className="dashboard-state" role="status">
-                Loading guestbook data…
-              </div>
-            ) : isError ? (
-              <div className="dashboard-state dashboard-error">
-                <p role="alert">Could not load guestbook data.</p>
+              <div className="dashboard-account">
+                <span className="dashboard-account-name">
+                  {session?.user.name ?? session?.user.email}
+                </span>
+                <ThemeToggle theme={theme} onToggle={toggleTheme} />
                 <Button
-                  variant="outline"
-                  onPress={function handleRetry() {
-                    void refetch();
+                  size="sm"
+                  variant="ghost"
+                  onPress={function handleSignOut() {
+                    void signOut({ callbackUrl: "/" });
                   }}
                 >
-                  Try again
+                  Sign out
                 </Button>
               </div>
-            ) : (
-              <Tabs
-                className="dashboard-tabs"
-                variant="secondary"
-                defaultSelectedKey="messages"
-              >
-                <Tabs.ListContainer>
-                  <Tabs.List aria-label="Guestbook management sections">
-                    <Tabs.Tab id="messages">
-                      <Tabs.Indicator />
-                      Messages{" "}
-                      <span className="dashboard-tab-count">
-                        {messages.length}
-                      </span>
-                    </Tabs.Tab>
-                    <Tabs.Tab id="contributors">
-                      <Tabs.Indicator />
-                      Contributors{" "}
-                      <span className="dashboard-tab-count">
-                        {contributors.length}
-                      </span>
-                    </Tabs.Tab>
-                  </Tabs.List>
-                </Tabs.ListContainer>
+            </div>
+          </header>
+          <div className="dashboard-page">
+            <main className="dashboard-main">
+              {notice && (
+                <Alert status={notice.tone}>
+                  <Alert.Indicator />
+                  <Alert.Content>{notice.title}</Alert.Content>
+                </Alert>
+              )}
+              <div className="dashboard-heading">
+                <div>
+                  <h1>Dashboard</h1>
+                  <p className="dashboard-intro">
+                    Review the conversation and manage contributor activity.
+                  </p>
+                </div>
+                <Link className="dashboard-back-link" href="/">
+                  View guestbook <LuArrowUpRight aria-hidden="true" />
+                </Link>
+              </div>
 
-                <Tabs.Panel id="messages" className="dashboard-panel">
-                  <section
-                    className="management-panel"
-                    aria-labelledby="messages-title"
+              <section className="dashboard-stats" aria-label="Guestbook summary">
+                <SummaryCard
+                  label="Published messages"
+                  value={isPending || isError ? "—" : messages.length}
+                />
+                <SummaryCard
+                  label="Contributors"
+                  value={isPending || isError ? "—" : contributors.length}
+                />
+                <SummaryCard
+                  label="Messages this month"
+                  value={isPending || isError ? "—" : messagesThisMonth}
+                />
+              </section>
+
+              {isPending ? (
+                <div className="dashboard-state" role="status">
+                  Loading guestbook data…
+                </div>
+              ) : isError ? (
+                <div className="dashboard-state dashboard-error">
+                  <p role="alert">Could not load guestbook data.</p>
+                  <Button
+                    variant="outline"
+                    onPress={function handleRetry() {
+                      void refetch();
+                    }}
                   >
-                    <div className="management-heading">
-                      <div>
-                        <h2 id="messages-title">Guestbook messages</h2>
-                        <p>Search, edit, or remove a message.</p>
-                      </div>
-                      <div className="management-tools">
-                        <label
-                          className="visually-hidden"
-                          htmlFor="message-search"
-                        >
-                          Search messages
-                        </label>
-                        <Input
-                          id="message-search"
-                          className="dashboard-search"
-                          type="search"
-                          placeholder="Search messages or people"
-                          value={search}
-                          onChange={function handleMessageSearch(event) {
-                            setSearch(event.target.value);
-                          }}
-                        />
-                        {messages.length > 0 ? (
-                          <ConfirmAction
-                            triggerLabel="Delete all messages"
-                            triggerVariant="danger-soft"
-                            title="Delete all guestbook messages?"
-                            description="This permanently removes every published guestbook message. Contributor accounts are not affected."
-                            actionLabel="Delete all messages"
-                            isPending={deleteAllMutation.isPending}
-                            onConfirm={handleDeleteAllMessages}
+                    Try again
+                  </Button>
+                </div>
+              ) : (
+                <Tabs
+                  className="dashboard-tabs"
+                  variant="secondary"
+                  defaultSelectedKey="messages"
+                >
+                  <Tabs.ListContainer>
+                    <Tabs.List aria-label="Guestbook management sections">
+                      <Tabs.Tab id="messages">
+                        <Tabs.Indicator />
+                        Messages{" "}
+                        <span className="dashboard-tab-count">
+                          {messages.length}
+                        </span>
+                      </Tabs.Tab>
+                      <Tabs.Tab id="contributors">
+                        <Tabs.Indicator />
+                        Contributors{" "}
+                        <span className="dashboard-tab-count">
+                          {contributors.length}
+                        </span>
+                      </Tabs.Tab>
+                    </Tabs.List>
+                  </Tabs.ListContainer>
+
+                  <Tabs.Panel id="messages" className="dashboard-panel">
+                    <section
+                      className="management-panel"
+                      aria-labelledby="messages-title"
+                    >
+                      <div className="management-heading">
+                        <div>
+                          <h2 id="messages-title">Guestbook messages</h2>
+                          <p>Search, edit, or remove a message.</p>
+                        </div>
+                        <div className="management-tools">
+                          <label
+                            className="visually-hidden"
+                            htmlFor="message-search"
+                          >
+                            Search messages
+                          </label>
+                          <Input
+                            id="message-search"
+                            className="dashboard-search"
+                            type="search"
+                            placeholder="Search messages or people"
+                            value={search}
+                            onChange={function handleMessageSearch(event) {
+                              setSearch(event.target.value);
+                            }}
                           />
-                        ) : null}
+                          {messages.length > 0 ? (
+                            <ConfirmAction
+                              triggerLabel="Delete all messages"
+                              triggerVariant="danger-soft"
+                              title="Delete all guestbook messages?"
+                              description="This permanently removes every published guestbook message. Contributor accounts are not affected."
+                              actionLabel="Delete all messages"
+                              isPending={deleteAllMutation.isPending}
+                              onConfirm={handleDeleteAllMessages}
+                            />
+                          ) : null}
+                        </div>
                       </div>
-                    </div>
-                    <p className="management-result-count" aria-live="polite">
-                      Showing {filteredMessages.length} of {messages.length}{" "}
-                      messages
-                    </p>
-                    <MessageTable
-                      messages={filteredMessages}
-                      isDeleting={deleteMessageMutation.isPending}
-                      onEdit={handleEdit}
-                      onDelete={handleDeleteMessage}
-                    />
-                  </section>
-                </Tabs.Panel>
-
-                <Tabs.Panel id="contributors" className="dashboard-panel">
-                  <section
-                    className="management-panel"
-                    aria-labelledby="contributors-title"
-                  >
-                    <div className="management-heading">
-                      <div>
-                        <h2 id="contributors-title">Contributors</h2>
-                        <p>Manage guestbook activity by email address.</p>
-                      </div>
-                      <div className="management-tools">
-                        <label
-                          className="visually-hidden"
-                          htmlFor="contributor-search"
-                        >
-                          Search contributors
-                        </label>
-                        <Input
-                          id="contributor-search"
-                          className="dashboard-search"
-                          type="search"
-                          placeholder="Search contributors"
-                          value={search}
-                          onChange={function handleContributorSearch(event) {
-                            setSearch(event.target.value);
-                          }}
-                        />
-                      </div>
-                    </div>
-                    <p className="management-result-count" aria-live="polite">
-                      Showing {filteredContributors.length} of{" "}
-                      {contributors.length} contributors
-                    </p>
-                    <ContributorTable
-                      contributors={filteredContributors}
-                      isDeleting={deleteContributorMutation.isPending}
-                      onDelete={handleDeleteContributor}
-                    />
-                  </section>
-                </Tabs.Panel>
-              </Tabs>
-            )}
-          </main>
-        </div>
-      </div>
-
-      <Modal>
-        <Modal.Backdrop
-          variant="blur"
-          isOpen={editingMessage !== null}
-          onOpenChange={function handleEditModalChange(isOpen) {
-            if (!isOpen && !updateMessageMutation.isPending) {
-              setEditingMessage(null);
-            }
-          }}
-          isDismissable={!updateMessageMutation.isPending}
-          isKeyboardDismissDisabled={updateMessageMutation.isPending}
-        >
-          <Modal.Container placement="center" size="md">
-            <Modal.Dialog>
-              {function renderEditDialog({ close }) {
-                return (
-                  <form
-                    className="edit-message-form"
-                    onSubmit={handleSaveMessage}
-                  >
-                    <Modal.Header>
-                      <div>
-                        <Modal.Heading>Edit message</Modal.Heading>
-                      </div>
-                    </Modal.Header>
-                    <Modal.Body>
-                      <div className="edit-message-author">
-                        <strong>{editingMessage?.username}</strong>
-                        <span>{editingMessage?.email}</span>
-                      </div>
-                      <TextField className="dashboard-field" isRequired>
-                        <Label>Message</Label>
-                        <TextArea
-                          rows={5}
-                          value={draftMessage}
-                          onChange={function handleDraftChange(event) {
-                            setDraftMessage(event.target.value);
-                          }}
-                          aria-describedby="message-character-count"
-                        />
-                      </TextField>
-                      <p id="message-character-count" className="field-hint">
-                        {draftMessage.length} characters
+                      <p className="management-result-count" aria-live="polite">
+                        Showing {filteredMessages.length} of {messages.length}{" "}
+                        messages
                       </p>
-                    </Modal.Body>
-                    <Modal.Footer>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        isDisabled={updateMessageMutation.isPending}
-                        onPress={close}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        type="submit"
-                        isPending={updateMessageMutation.isPending}
-                        isDisabled={!draftMessage.trim()}
-                      >
-                        Save changes
-                      </Button>
-                    </Modal.Footer>
-                  </form>
-                );
-              }}
-            </Modal.Dialog>
-          </Modal.Container>
-        </Modal.Backdrop>
-      </Modal>
-    </ProtectedLayout>
+                      <MessageTable
+                        messages={filteredMessages}
+                        isDeleting={deleteMessageMutation.isPending}
+                        onEdit={handleEdit}
+                        onDelete={handleDeleteMessage}
+                      />
+                    </section>
+                  </Tabs.Panel>
+
+                  <Tabs.Panel id="contributors" className="dashboard-panel">
+                    <section
+                      className="management-panel"
+                      aria-labelledby="contributors-title"
+                    >
+                      <div className="management-heading">
+                        <div>
+                          <h2 id="contributors-title">Contributors</h2>
+                          <p>Manage guestbook activity by email address.</p>
+                        </div>
+                        <div className="management-tools">
+                          <label
+                            className="visually-hidden"
+                            htmlFor="contributor-search"
+                          >
+                            Search contributors
+                          </label>
+                          <Input
+                            id="contributor-search"
+                            className="dashboard-search"
+                            type="search"
+                            placeholder="Search contributors"
+                            value={search}
+                            onChange={function handleContributorSearch(event) {
+                              setSearch(event.target.value);
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <p className="management-result-count" aria-live="polite">
+                        Showing {filteredContributors.length} of{" "}
+                        {contributors.length} contributors
+                      </p>
+                      <ContributorTable
+                        contributors={filteredContributors}
+                        isDeleting={deleteContributorMutation.isPending}
+                        onDelete={handleDeleteContributor}
+                      />
+                    </section>
+                  </Tabs.Panel>
+                </Tabs>
+              )}
+            </main>
+          </div>
+        </div>
+
+        <Modal>
+          <Modal.Backdrop
+            variant="blur"
+            isOpen={editingMessage !== null}
+            onOpenChange={function handleEditModalChange(isOpen) {
+              if (!isOpen && !updateMessageMutation.isPending) {
+                setEditingMessage(null);
+              }
+            }}
+            isDismissable={!updateMessageMutation.isPending}
+            isKeyboardDismissDisabled={updateMessageMutation.isPending}
+          >
+            <Modal.Container placement="center" size="md">
+              <Modal.Dialog>
+                {function renderEditDialog({ close }) {
+                  return (
+                    <form
+                      className="edit-message-form"
+                      onSubmit={handleSaveMessage}
+                    >
+                      <Modal.Header>
+                        <div>
+                          <Modal.Heading>Edit message</Modal.Heading>
+                        </div>
+                      </Modal.Header>
+                      <Modal.Body>
+                        <div className="edit-message-author">
+                          <strong>{editingMessage?.username}</strong>
+                          <span>{editingMessage?.email}</span>
+                        </div>
+                        <TextField className="dashboard-field" isRequired>
+                          <Label>Message</Label>
+                          <TextArea
+                            rows={5}
+                            value={draftMessage}
+                            onChange={function handleDraftChange(event) {
+                              setDraftMessage(event.target.value);
+                            }}
+                            aria-describedby="message-character-count"
+                          />
+                        </TextField>
+                        <p id="message-character-count" className="field-hint">
+                          {draftMessage.length} characters
+                        </p>
+                      </Modal.Body>
+                      <Modal.Footer>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          isDisabled={updateMessageMutation.isPending}
+                          onPress={close}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          type="submit"
+                          isPending={updateMessageMutation.isPending}
+                          isDisabled={!draftMessage.trim()}
+                        >
+                          Save changes
+                        </Button>
+                      </Modal.Footer>
+                    </form>
+                  );
+                }}
+              </Modal.Dialog>
+            </Modal.Container>
+          </Modal.Backdrop>
+        </Modal>
+      </ProtectedLayout>
+    </>
   );
 }
 

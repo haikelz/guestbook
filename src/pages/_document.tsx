@@ -18,8 +18,7 @@ export default class RootDocument extends Document {
     return (
       <Html lang="en" suppressHydrationWarning>
         <Head>
-          <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
-          <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+          <link rel="icon" href="/favicon.ico" sizes="any" />
         </Head>
         <body>
           {/* Apply the saved theme before first paint so dark users never see a light flash. */}

@@ -2,6 +2,7 @@ import { ConfirmAction } from "@/components/confirm-action";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useColorTheme } from "@/hooks/use-color-theme";
 import { dateFormatter } from "@/lib/helpers/date-formatter";
+import { SITE_URL } from "@/lib/utils/constants";
 import { messageSchema } from "@/lib/utils/schemas";
 import { trpc } from "@/lib/utils/trpc";
 import type { GuestbookProps } from "@/types";
@@ -9,7 +10,7 @@ import { Alert, Button, Modal, TextArea } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { keepPreviousData } from "@tanstack/react-query";
 import { signIn, signOut, useSession } from "next-auth/react";
-import { NextSeo } from "next-seo";
+import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import { createDetector } from "profanity-kit/core";
@@ -21,6 +22,10 @@ import { FaGithub, FaGoogle } from "react-icons/fa";
 import { LuArrowUpRight, LuMessageSquare, LuPenLine } from "react-icons/lu";
 
 type GuestbookMessage = Omit<GuestbookProps, "email">;
+
+const PAGE_TITLE = "Guestbook · ekel.dev";
+const PAGE_DESCRIPTION =
+  "Leave a note for Haikel and read messages from visitors to ekel.dev.";
 
 const detector = createDetector({ languages: [english, indonesian] });
 
@@ -67,10 +72,14 @@ export default function Guestbook() {
 
   return (
     <>
-      <NextSeo
-        title="guestbook.ekel.dev"
-        description="Write a message for me and others"
-      />
+      <Head>
+        <title key="title">{PAGE_TITLE}</title>
+        <meta key="description" name="description" content={PAGE_DESCRIPTION} />
+        <link key="canonical" rel="canonical" href={`${SITE_URL}/`} />
+        <meta key="og:url" property="og:url" content={`${SITE_URL}/`} />
+        <meta key="og:title" property="og:title" content={PAGE_TITLE} />
+        <meta key="og:description" property="og:description" content={PAGE_DESCRIPTION} />
+      </Head>
       <div className="guestbook-viewport">
         <header className="site-topbar">
           <div className="topbar-inner">

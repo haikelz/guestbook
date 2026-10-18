@@ -1,3 +1,6 @@
+// Canonical public origin; previews and dev still point crawlers at production.
+export const SITE_URL = "https://guestbook.ekel.dev";
+
 export const NEXT_PUBLIC_DEVELOPMENT_URL = process.env
   .NEXT_PUBLIC_DEVELOPMENT_URL as string;
 export const NEXT_PUBLIC_PRODUCTION_URL = process.env
