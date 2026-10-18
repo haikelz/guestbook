@@ -9,12 +9,12 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { httpBatchLink } from "@trpc/client";
 import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import Head from "next/head";
 import { useState } from "react";
 import { trpc } from "../lib/utils/trpc";
 
-const inter = Inter({ subsets: ["latin"] });
+const plusJakartaSans = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
 export default function App({
   Component,
@@ -39,7 +39,7 @@ export default function App({
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <SessionProvider session={session}>
         {/* On :root so portalled HeroUI overlays share the face. */}
-        <style>{`:root { --font-inter: ${inter.style.fontFamily}; }`}</style>
+        <style>{`:root { --font-sans: ${plusJakartaSans.style.fontFamily}; }`}</style>
         <Head>
           <title key="title">Guestbook · ekel.dev</title>
           <meta

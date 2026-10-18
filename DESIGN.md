@@ -28,38 +28,36 @@ colors:
   danger-ink-dark: "oklch(0.78 0.14 25)"
 typography:
   display:
-    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Plus Jakarta Sans, ui-sans-serif, system-ui, sans-serif"
     fontSize: "1.75rem"
     fontWeight: 600
     lineHeight: 1.25
     letterSpacing: "-0.025em"
-    fontFeature: "'cv11', 'ss01'"
   headline:
-    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Plus Jakarta Sans, ui-sans-serif, system-ui, sans-serif"
     fontSize: "1.25rem"
     fontWeight: 600
     lineHeight: 1.4
     letterSpacing: "-0.025em"
-    fontFeature: "'cv11', 'ss01', 'tnum'"
+    fontFeature: "'tnum'"
   title:
-    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Plus Jakarta Sans, ui-sans-serif, system-ui, sans-serif"
     fontSize: "0.875rem"
     fontWeight: 600
     lineHeight: 1.43
   body:
-    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Plus Jakarta Sans, ui-sans-serif, system-ui, sans-serif"
     fontSize: "0.875rem"
     fontWeight: 400
     lineHeight: 1.6
-    fontFeature: "'cv11', 'ss01'"
   label:
-    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Plus Jakarta Sans, ui-sans-serif, system-ui, sans-serif"
     fontSize: "0.75rem"
     fontWeight: 500
     lineHeight: 1.33
-    fontFeature: "'cv11', 'ss01', 'tnum'"
+    fontFeature: "'tnum'"
   column-head:
-    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Plus Jakarta Sans, ui-sans-serif, system-ui, sans-serif"
     fontSize: "0.6875rem"
     fontWeight: 500
     lineHeight: 1.5
@@ -130,7 +128,7 @@ The retired "Open House" look (a saturated blue welcome card, sticky two-column 
 **Key Characteristics:**
 - Cool blue-tinted neutrals; white panels on a near-white ground.
 - Indigo for the primary action, links and focus only; red for destructive actions only.
-- Inter with `cv11`, `ss01` and tabular numerals on counts and dates.
+- Plus Jakarta Sans with tabular numerals on counts and dates.
 - 1px hairlines and soft ambient shadows; 10px panels, 8px buttons.
 - A single centred column with a sticky translucent header.
 
@@ -159,9 +157,9 @@ All tokens live in `src/styles/globals.css` as `--gb-*` variables and map onto H
 
 ## Typography
 
-**Font:** Inter via `next/font/google` (fallback ui-sans-serif, system-ui), exposed as `--font-inter` on `:root` from `src/pages/_app.tsx`.
+**Font:** Plus Jakarta Sans via `next/font/google` (fallback ui-sans-serif, system-ui), exposed as `--font-sans` on `:root` from `src/pages/_app.tsx`.
 
-**Character:** One neutral grotesque at small sizes with alternate glyphs (`cv11` single-storey a, `ss01` open digits). Hierarchy comes from weight and muted colour, not from size jumps.
+**Character:** One geometric sans with open, friendly forms at small sizes. Hierarchy comes from weight and muted colour, not from size jumps.
 
 ### Hierarchy
 - **Display** (600, 1.5rem rising to 1.75rem above 640px, tight tracking): "Guestbook", "Dashboard" and error page headings. One per page.
